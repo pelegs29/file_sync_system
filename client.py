@@ -42,7 +42,7 @@ def generate_user_identifier():
 # running input checks
 ip_check(sys.argv[1])
 port_check(sys.argv[2])
-time_to_reach_check(sys.argv[5])
+time_to_reach_check(sys.argv[4])
 
 # argument 1 -> ip address
 # argument 2 -> port
@@ -52,7 +52,7 @@ time_to_reach_check(sys.argv[5])
 ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = sys.argv[3]
-time_to_reach = sys.argv[5]
+time_to_reach = sys.argv[4]
 
 
 class Watcher:
