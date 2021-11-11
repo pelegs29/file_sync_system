@@ -5,6 +5,7 @@ import string
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import os
 
 # input check - raise exception if the program args count isn't 4 or 5
 if len(sys.argv) != 5 and len(sys.argv) != 6:
@@ -53,6 +54,11 @@ ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = sys.argv[3]
 time_to_reach = sys.argv[4]
+# in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
+if len(sys.argv) == 5:
+    user_identifier = generate_user_identifier()
+else:
+    user_identifier = sys.argv[5]
 
 
 class Watcher:
@@ -98,14 +104,31 @@ class Handler(FileSystemEventHandler):
         print(change)
 
 
-# in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
-if len(sys.argv) == 5:
-    user_identifier = generate_user_identifier()
-w = Watcher()
-w.run()
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 12345))
-s.send(b'hello')
+s.send(user_identifier.encode())
 data = s.recv(100)
 print("Server sent: ", data)
+
+# In case we are new client.
+if data.decode("UTF-8", 'strict') == "NEW":
+    files = os.listdir(folder_path)
+    s.send(len(files).to_bytes(4, 'big'))
+    for file in files:
+        # creates full path to the file.
+        path = os.path.join(folder_path, file)
+
+        # get the file size
+        filesize = os.path.getsize(path)
+
+        # send file name
+        s.send(file.encode())
+
+        # send file size.
+        s.send(str(filesize).encode())
+
+        with open(path, 'rb') as f:
+            s.send(f.read())
+w = Watcher()
+w.run()
 s.close()

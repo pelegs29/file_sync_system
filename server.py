@@ -5,9 +5,14 @@ server.bind(('', 12345))
 server.listen(5)
 while True:
     client_socket, client_address = server.accept()
-    print('Connection from: ', client_address)
-    data = client_socket.recv(100)
-    print('Received: ', data)
-    client_socket.send(data.upper())
+    client_id = client_socket.recv(100)
+    client_socket.send(str("NEW").encode())
+    with server, server.makefile('rb') as client_file:
+        while True:
+            folder = client_file.readline()
+            # if client closes the connection we'll get folder = ''.
+            if not folder:
+                break
+
     client_socket.close()
     print('Client disconnected')
