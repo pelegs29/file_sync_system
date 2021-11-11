@@ -79,6 +79,7 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         change = ""
         if event.is_directory:
+            change = "directory"
             return None
         elif event.event_type == 'created':
             change = "Created new file"
