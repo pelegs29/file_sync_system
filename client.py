@@ -80,13 +80,13 @@ class Handler(FileSystemEventHandler):
         change = ""
         if event.is_directory:
             if event.event_type == 'created':
-                change = "Created new folder {event.src_path}"
+                change = "Created new folder %s"
             elif event.event_type == 'modified':
-                change = "folder {event.src_path} modified."
+                change = "folder %s modified."
             elif event.event_type == 'moved':
-                change = "folder {event.src_path} moved."
+                change = "folder %s moved."
             elif event.event_type == 'deleted':
-                change = "folder {event.src_path} deleted."
+                change = "folder %s deleted."
         elif event.event_type == 'created':
             change = "Created new file"
         elif event.event_type == 'modified':
@@ -95,7 +95,7 @@ class Handler(FileSystemEventHandler):
             change = "file moved."
         elif event.event_type == 'deleted':
             change = "file deleted."
-        print(change)
+        print(change % event.src_path)
 
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
