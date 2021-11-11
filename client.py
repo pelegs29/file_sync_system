@@ -36,7 +36,7 @@ def time_to_reach_check(time_to_connect):
 
 
 def generate_user_identifier():
-    return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(129))
+    return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
 # running input checks
@@ -82,7 +82,7 @@ class Handler(FileSystemEventHandler):
             if event.event_type == 'created':
                 change = "Created new folder" + event.src_path
             elif event.event_type == 'modified':
-                change = "folder modified." + event.src_path
+                return None
             elif event.event_type == 'moved':
                 change = "folder moved." + event.src_path
             elif event.event_type == 'deleted':
