@@ -95,7 +95,7 @@ class Handler(FileSystemEventHandler):
             change = "file moved."
         elif event.event_type == 'deleted':
             change = "file deleted."
-        print(change % event.src_path)
+        print(change)
 
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
