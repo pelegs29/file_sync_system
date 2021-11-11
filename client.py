@@ -79,8 +79,14 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         change = ""
         if event.is_directory:
-            change = "directory"
-            return None
+            if event.event_type == 'created':
+                change = "Created new folder"
+            elif event.event_type == 'modified':
+                change = "folder modified."
+            elif event.event_type == 'moved':
+                change = "folder moved."
+            elif event.event_type == 'deleted':
+                change = "folder deleted."
         elif event.event_type == 'created':
             change = "Created new file"
         elif event.event_type == 'modified':
