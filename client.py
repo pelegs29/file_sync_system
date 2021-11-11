@@ -82,7 +82,7 @@ class Handler(FileSystemEventHandler):
             if event.event_type == 'created':
                 change = "Created new folder" + event.src_path
             elif event.event_type == 'modified':
-                change = "folder modified." + event.src_path
+                return None
             elif event.event_type == 'moved':
                 change = "folder moved." + event.src_path
             elif event.event_type == 'deleted':
