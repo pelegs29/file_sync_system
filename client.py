@@ -36,7 +36,7 @@ def time_to_reach_check(time_to_connect):
 
 
 def generate_user_identifier():
-    return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(129))
+    return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
 # running input checks
