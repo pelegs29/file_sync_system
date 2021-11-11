@@ -80,13 +80,13 @@ class Handler(FileSystemEventHandler):
         change = ""
         if event.is_directory:
             if event.event_type == 'created':
-                change = "Created new folder"
+                change = "Created new folder {event.src_path}"
             elif event.event_type == 'modified':
-                change = "folder modified."
+                change = "folder {event.src_path} modified."
             elif event.event_type == 'moved':
-                change = "folder moved."
+                change = "folder {event.src_path} moved."
             elif event.event_type == 'deleted':
-                change = "folder deleted."
+                change = "folder {event.src_path} deleted."
         elif event.event_type == 'created':
             change = "Created new file"
         elif event.event_type == 'modified':
