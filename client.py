@@ -106,7 +106,7 @@ s.send(user_identifier.encode())
 data = s.recv(100)
 
 
-# In case we are new client.
+# In case we are new client
 if data.decode("UTF-8", 'strict') == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     for path, dirs, files in os.walk(folder_path):
