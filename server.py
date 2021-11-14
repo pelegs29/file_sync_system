@@ -63,3 +63,4 @@ while True:
                     else:  # only runs if while doesn't break and length==0
                         continue
     client_socket.close()
+    print('Client disconnected')
