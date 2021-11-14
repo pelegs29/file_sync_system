@@ -56,7 +56,6 @@ else:
 
 
 class Watcher:
-
     DIRECTORY_TO_WATCH = folder_path
 
     def __init__(self):
@@ -107,6 +106,7 @@ s.send(user_identifier.encode())
 data = s.recv(100)
 
 # In case we are new client.
+# TODO deal with folder names of ","
 if data.decode("UTF-8", 'strict') == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     for path, dirs, files in os.walk(folder_path):
@@ -118,10 +118,10 @@ if data.decode("UTF-8", 'strict') == "NEW":
             f = open(file_path, "r")
             s.send(f.read().encode())
         for folder in dirs:
-            folder_path = os.path.join(path, folder)
-            folder_name = os.path.relpath(folder_path, folder_path)
+            # folder_path = os.path.join(path, folder)
+            # folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
-            s.send(("folder," + folder_name + "," + folder_size).encode())
+            s.send(("folder," + folder + "," + folder_size).encode())
     s.send("0,0,0".encode())
     s.close()
 
