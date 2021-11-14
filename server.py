@@ -18,7 +18,7 @@ server.listen(5)
 while True:
     client_socket, client_address = server.accept()
     client_id = client_socket.recv(128)
-    folders_list = list_dirs('')
+    folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
         client_socket.send("OLD".encode())
         for path, dirs, files in os.walk(client_id):
@@ -62,3 +62,4 @@ while True:
                     else:  # only runs if while doesn't break and length==0
                         continue
     client_socket.close()
+    print('Client disconnected')
