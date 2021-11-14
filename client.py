@@ -106,6 +106,7 @@ data = s.recv(100)
 
 # In case we are new client.
 if data.decode("UTF-8", 'strict') == "NEW":
+    user_identifier = s.recv(128).decode("UTF-8", 'strict')
     for path, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(path, file)
@@ -119,7 +120,6 @@ if data.decode("UTF-8", 'strict') == "NEW":
             folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
             s.send(("folder ," + folder_name + ", " + folder_size).encode())
-    s.recv()
 
 # w = Watcher()
 # w.run()

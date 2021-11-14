@@ -23,6 +23,7 @@ while True:
         client_socket.send("OLD".encode())
     else:
         user_id = generate_user_identifier()
+        client_socket.send(user_id.encode())
         os.makedirs(user_id, exist_ok=True)
         os.chdir(os.path.join(os.getcwd(), user_id))
         # TODO test large files.
