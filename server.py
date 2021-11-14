@@ -30,7 +30,7 @@ while True:
                     client_socket.sendall(relpath.encode() + b'\n')
                     client_socket.sendall(str(filesize).encode() + b'\n')
 
-                    # Send the file in chunks so large files can be handled
+                    # Send the file in chunks so large files can be handled.
                     while True:
                         data = f.read()
                         if not data:
