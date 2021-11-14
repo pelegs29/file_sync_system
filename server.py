@@ -18,7 +18,7 @@ server.listen(5)
 while True:
     client_socket, client_address = server.accept()
     client_id = client_socket.recv(128)
-    folders_list = list_dirs('')
+    folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
         client_socket.send("OLD".encode())
         for path, dirs, files in os.walk(client_id):
@@ -37,28 +37,7 @@ while True:
                             break
                         client_socket.sendall(data)
     else:
-        client_socket.send("NEW".encode())
-        with server, server.makefile('rb') as file:
-            while True:
-                raw = file.readline()
-                if not raw:
-                    break  # no more files, server closed connection.
+        os.makedirs(generate_user_identifier(), exist_ok=True)
 
-                filename = raw.strip().decode()
-                length = int(file.readline())
-                # change path.
-                path = os.path.join('client', filename)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-
-                # Read the data in chunks so it can handle large files.
-                with open(path, 'wb') as f:
-                    while length:
-                        chunk = length
-                        data = file.read(chunk)
-                        if not data:
-                            break
-                        f.write(data)
-                        length -= len(data)
-                    else:  # only runs if while doesn't break and length==0
-                        continue
     client_socket.close()
+    print('Client disconnected')
