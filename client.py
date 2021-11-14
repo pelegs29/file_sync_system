@@ -56,6 +56,7 @@ else:
 
 
 class Watcher:
+
     DIRECTORY_TO_WATCH = folder_path
 
     def __init__(self):
