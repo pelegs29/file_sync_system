@@ -99,7 +99,7 @@ class Handler(FileSystemEventHandler):
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 12345))
+s.connect(('192.168.220.128', 12345))
 s.send(user_identifier.encode())
 data = s.recv(100)
 
