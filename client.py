@@ -120,7 +120,7 @@ if data.decode("UTF-8", 'strict') == "NEW":
             folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
             s.send(("folder," + folder_name + "," + folder_size).encode())
-    s.send("0,0,0")
+    s.send("0,0,0".encode())
     s.close()
 
 # w = Watcher()

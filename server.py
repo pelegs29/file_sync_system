@@ -22,6 +22,7 @@ while True:
     if client_id in folders_list:
         client_socket.send("OLD".encode())
     else:
+        client_socket.send("NEW".encode())
         user_id = generate_user_identifier()
         client_socket.send(user_id.encode())
         os.makedirs(user_id, exist_ok=True)
