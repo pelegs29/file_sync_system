@@ -109,9 +109,16 @@ if data.decode("UTF-8", 'strict') == "NEW":
     for path, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(path, file)
-            relative_path = os.path.relpath(file_path, folder_path)
-            filesize = os.path.getsize(file_path)
-
+            file_name = os.path.relpath(file_path, folder_path)
+            file_size = str(os.path.getsize(file_path))
+            s.send(("file ," + file_name + ", " + file_size).encode())
+            f = open(file_path, "r")
+            s.send(f.read().encode())
+        for folder in dirs:
+            folder_path = os.path.join(path, folder)
+            folder_name = os.path.relpath(folder_path, folder_path)
+            folder_size = str(0)
+            s.send(("folder ," + folder_name + ", " + folder_size).encode())
 
 # w = Watcher()
 # w.run()
