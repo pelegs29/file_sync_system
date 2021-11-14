@@ -35,7 +35,9 @@ while True:
                 data = client_socket.recv(int(file_size))
                 f.write(data)
                 f.close()
-            else:
+            elif file_type == "folder":
                 os.makedirs(file_name, exist_ok=True)
                 os.chdir(os.path.join(os.getcwd(), file_name))
+            else:
+                break
     client_socket.close()
