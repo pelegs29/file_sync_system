@@ -21,23 +21,20 @@ while True:
     folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
         client_socket.send("OLD".encode())
-        for path, dirs, files in os.walk(client_id):
-            for file in files:
-                filename = os.path.join(path, file)
-                relpath = os.path.relpath(filename, client_id)
-                filesize = os.path.getsize(filename)
-                with open(filename, 'rb') as f:
-                    client_socket.sendall(relpath.encode() + b'\n')
-                    client_socket.sendall(str(filesize).encode() + b'\n')
-
-                    # Send the file in chunks so large files can be handled.
-                    while True:
-                        data = f.read()
-                        if not data:
-                            break
-                        client_socket.sendall(data)
     else:
-        os.makedirs(generate_user_identifier(), exist_ok=True)
-
+        user_id = generate_user_identifier()
+        os.makedirs(user_id, exist_ok=True)
+        os.chdir(os.path.join(os.getcwd(), user_id))
+        # TODO test large files.
+        while True:
+            data = client_socket.recv(1024).decode("UTF-8", 'strict')
+            file_type, file_name, file_size = data.split(',')
+            if file_type == "file":
+                f = open(file_name, "wb")
+                data = client_socket.recv(int(file_size))
+                f.write(data)
+                f.close()
+            else:
+                os.makedirs(file_name, exist_ok=True)
+                os.chdir(os.path.join(os.getcwd(), file_name))
     client_socket.close()
-    print('Client disconnected')
