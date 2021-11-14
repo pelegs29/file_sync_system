@@ -38,29 +38,6 @@ while True:
                         client_socket.sendall(data)
     else:
         os.makedirs(generate_user_identifier(), exist_ok=True)
-        client_socket.send("NEW".encode())
-        with server, server.makefile('rb') as file:
-            while True:
-                raw = file.readline()
-                if not raw:
-                    break  # no more files, server closed connection.
 
-                filename = raw.strip().decode()
-                length = int(file.readline())
-                # change path.
-                path = os.path.join('client', filename)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-
-                # Read the data in chunks so it can handle large files.
-                with open(path, 'wb') as f:
-                    while length:
-                        chunk = length
-                        data = file.read(chunk)
-                        if not data:
-                            break
-                        f.write(data)
-                        length -= len(data)
-                    else:  # only runs if while doesn't break and length==0
-                        continue
     client_socket.close()
     print('Client disconnected')

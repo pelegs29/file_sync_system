@@ -108,19 +108,10 @@ data = s.recv(100)
 if data.decode("UTF-8", 'strict') == "NEW":
     for path, dirs, files in os.walk(folder_path):
         for file in files:
-            filename = os.path.join(path, file)
-            relpath = os.path.relpath(filename, folder_path)
-            filesize = os.path.getsize(filename)
-            with open(filename, 'rb') as f:
-                s.sendall(relpath.encode() + b'\n')
-                s.sendall(str(filesize).encode() + b'\n')
+            file_path = os.path.join(path, file)
+            relative_path = os.path.relpath(file_path, folder_path)
+            filesize = os.path.getsize(file_path)
 
-                # Send the file in chunks so large files can be handled.
-                while True:
-                    data = f.read()
-                    if not data:
-                        break
-                    s.sendall(data)
 
 # w = Watcher()
 # w.run()
