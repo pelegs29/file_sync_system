@@ -86,13 +86,18 @@ port = int(sys.argv[1])
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
 server.listen(5)
+
+# 0 - new
+# 1 - old
+# 2- event
+
 while True:
     client_socket, client_address = server.accept()
-    client_id, operation = client_socket.recv(128).decode("UTF-8", 'strict').split(',')
+    client_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
     folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
         folder_path = os.path.join(os.getcwd(), client_id)
-        if operation == "event":
+        if operation == "2":
             break
         else:
             existing_client(client_socket, folder_path)
