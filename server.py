@@ -24,7 +24,7 @@ def existing_client(client_sock, path):
     for path, dirs, files in os.walk(path):
         for file in files:
             file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, path)
+            file_name = os.path.relpath(file_path, client_id)
             file_size = str(os.path.getsize(file_path))
             protocol = "file," + file_name + "," + file_size
             protocol_size = len(protocol).to_bytes(4, 'big')

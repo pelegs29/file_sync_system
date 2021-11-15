@@ -40,7 +40,7 @@ def new_client(sock):
     for path, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, path)
+            file_name = os.path.relpath(file_path, folder_path)
             file_size = str(os.path.getsize(file_path))
             protocol = "file," + file_name + "," + file_size
             protocol_size = len(protocol).to_bytes(4, 'big')
@@ -74,6 +74,7 @@ def old_client(sock):
             f.close()
         elif file_type == "folder":
             os.makedirs(file_name, exist_ok=True)
+
             os.chdir(os.path.join(os.getcwd(), file_name))
         else:
             break
