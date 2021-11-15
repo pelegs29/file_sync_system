@@ -56,6 +56,7 @@ def new_client(sock):
             protocol_size = len(protocol).to_bytes(4, 'big')
             sock.send(protocol_size)
             sock.send(protocol.encode())
+    sock.send(len("0,0,0").to_bytes(4, 'big'))
     sock.send("0,0,0".encode())
 
 
