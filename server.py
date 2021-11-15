@@ -6,8 +6,9 @@ import sys
 
 
 # input check - raise exception if the program args count isn't 1.
-if len(sys.argv) != 2:
-    raise Exception("Only 1 argument allowed.")
+def args_num_check():
+    if len(sys.argv) != 2:
+        raise Exception("Only 1 argument allowed.")
 
 
 # input check - raise exception if the port given is not a five digits number
@@ -81,8 +82,11 @@ def generate_user_identifier():
     return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
+# input checks
+args_num_check()
 port_check(sys.argv[1])
 port = int(sys.argv[1])
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
 server.listen(5)
