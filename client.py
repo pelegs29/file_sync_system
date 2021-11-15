@@ -166,6 +166,7 @@ s.close()
 w = Watcher()
 
 while True:
+    w = Watcher()
     w.run()
     for root, dirs, files in os.walk(folder_path, topdown=False):
         for name in files:
