@@ -146,7 +146,7 @@ class Handler(FileSystemEventHandler):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
-s.send((user_identifier + ",NEW").encode())
+s.send((user_identifier + ",0").encode())
 
 
 # In case we are new client.
