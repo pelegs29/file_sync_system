@@ -40,6 +40,7 @@ def existing_client(client_sock, path):
             protocol_size = len(protocol).to_bytes(4, 'big')
             client_sock.send(protocol_size)
             client_sock.send(protocol.encode())
+    client_sock.send(len("0,0,0").to_bytes(4, 'big'))
     client_sock.send("0,0,0".encode())
 
 
