@@ -116,9 +116,11 @@ class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
         s.connect((ip, port))
+        s.send((user_identifier + ",event").encode())
         if event.is_directory:
             if event.event_type == 'created':
-                change = "Created new folder" + event.src_path
+                rel_path = os.path.relpath(event.src_path, folder_path)
+                s.send(("folder,create," + rel_path).encode())
             elif event.event_type == 'modified':
                 return None
             elif event.event_type == 'moved':
@@ -150,16 +152,17 @@ else:
 s.close()
 w = Watcher()
 w.run()
-while True:
-    time.sleep(time_to_reach)
-    for root, dirs, files in os.walk(user_identifier, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
-    s.connect((ip, port))
-    s.send((user_identifier + ",get_update").encode())
-    old_client(s)
-    s.close()
+
+# while True:
+#     time.sleep(time_to_reach)
+#     for root, dirs, files in os.walk(user_identifier, topdown=False):
+#         for name in files:
+#             os.remove(os.path.join(root, name))
+#         for name in dirs:
+#             os.rmdir(os.path.join(root, name))
+#     s.connect((ip, port))
+#     s.send((user_identifier + ",get_update").encode())
+#     old_client(s)
+#     s.close()
 
 # s.close()
