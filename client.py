@@ -40,24 +40,31 @@ def new_client(sock):
     for path, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, folder_path)
+            file_name = os.path.relpath(file_path, path)
             file_size = str(os.path.getsize(file_path))
-            s.send(("file," + file_name + "," + file_size).encode())
+            protocol = "file," + file_name + "," + file_size
+            protocol_size = len(protocol).to_bytes(4, 'big')
+            sock.send(protocol_size)
+            sock.send(protocol.encode())
             f = open(file_path, "r")
-            s.send(f.read().encode())
+            sock.send(f.read().encode())
         for folder in dirs:
-            # folder_path = os.path.join(path, folder)
+            # path = os.path.join(path, folder)
             # folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
-            s.send(("folder," + folder + "," + folder_size).encode())
-    s.send("0,0,0".encode())
+            protocol = "folder," + folder + "," + folder_size
+            protocol_size = len(protocol).to_bytes(4, 'big')
+            sock.send(protocol_size)
+            sock.send(protocol.encode())
+    sock.send("0,0,0".encode())
 
 
 def old_client(sock):
     os.chdir(folder_path)
     # TODO test large files.
     while True:
-        data = sock.recv(1024).decode("UTF-8", 'strict')
+        data = sock.recv(4).bytes_to_int(4)
+        data = sock.recv(data).decode("UTF-8", 'strict')
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")

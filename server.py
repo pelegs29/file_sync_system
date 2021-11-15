@@ -26,14 +26,20 @@ def existing_client(client_sock, path):
             file_path = os.path.join(path, file)
             file_name = os.path.relpath(file_path, path)
             file_size = str(os.path.getsize(file_path))
-            client_sock.send(("file," + file_name + "," + file_size).encode())
+            protocol = "file," + file_name + "," + file_size
+            protocol_size = len(protocol).to_bytes(4, 'big')
+            client_sock.send(protocol_size)
+            client_sock.send(protocol.encode())
             f = open(file_path, "r")
             client_socket.send(f.read().encode())
         for folder in dirs:
             # path = os.path.join(path, folder)
             # folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
-            client_sock.send(("folder," + folder + "," + folder_size).encode())
+            protocol = "folder," + folder + "," + folder_size
+            protocol_size = len(protocol).to_bytes(4, 'big')
+            client_sock.send(protocol_size)
+            client_sock.send(protocol.encode())
     client_sock.send("0,0,0".encode())
 
 
@@ -46,7 +52,8 @@ def new_client(client_sock):
     os.chdir(os.path.join(os.getcwd(), user_id))
     # TODO test large files.
     while True:
-        data = client_sock.recv(1024).decode("UTF-8", 'strict')
+        data = client_sock.recv(4).bytes_to_int(4)
+        data = client_sock.recv(data).decode("UTF-8", 'strict')
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
