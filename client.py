@@ -147,6 +147,7 @@ class Handler(FileSystemEventHandler):
             change = "file moved."
         elif event.event_type == 'deleted':
             change = "file deleted."
+        s.close()
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
