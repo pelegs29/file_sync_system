@@ -52,8 +52,8 @@ def new_client(client_sock):
     os.chdir(os.path.join(os.getcwd(), user_id))
     # TODO test large files.
     while True:
-        data = client_sock.recv(4).bytes_to_int(4)
-        data = client_sock.recv(data).decode("UTF-8", 'strict')
+        data_size = int.from_bytes(client_sock.recv(4), 'big')
+        data = client_sock.recv(data_size).decode("UTF-8", 'strict')
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
