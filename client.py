@@ -74,8 +74,6 @@ def old_client(sock):
             f.close()
         elif file_type == "folder":
             os.makedirs(file_name, exist_ok=True)
-
-            os.chdir(os.path.join(os.getcwd(), file_name))
         else:
             break
 
