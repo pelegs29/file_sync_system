@@ -115,7 +115,8 @@ class Watcher:
         self.observer.start()
         try:
             while True:
-                time.sleep(5)
+                time.sleep(time_to_reach)
+                break
         except Exception:
             self.observer.stop()
             print("error")
@@ -164,9 +165,6 @@ w = Watcher()
 
 while True:
     w.run()
-    time.sleep(time_to_reach)
-    w.observer.stop()
-    w.observer.join()
     for root, dirs, files in os.walk(folder_path, topdown=False):
         for name in files:
             os.remove(os.path.join(root, name))
