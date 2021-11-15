@@ -104,7 +104,7 @@ else:
 
 
 class Watcher:
-    DIRECTORY_TO_WATCH = folder_path
+    DIRECTORY_TO_WATCH = os.path.abspath(folder_path)
 
     def __init__(self):
         self.observer = Observer()
