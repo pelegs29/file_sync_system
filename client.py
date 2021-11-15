@@ -126,12 +126,13 @@ class Watcher:
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
-        s.connect((ip, port))
-        s.send((user_identifier + ",event").encode())
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip, port))
+        sock.send((user_identifier + ",event").encode())
         if event.is_directory:
             if event.event_type == 'created':
                 rel_path = os.path.relpath(event.src_path, folder_path)
-                s.send(("folder,create," + rel_path).encode())
+                sock.send(("folder,create," + rel_path).encode())
             elif event.event_type == 'modified':
                 return None
             elif event.event_type == 'moved':
@@ -146,7 +147,7 @@ class Handler(FileSystemEventHandler):
             change = "file moved."
         elif event.event_type == 'deleted':
             change = "file deleted."
-        s.close()
+        sock.close()
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -171,6 +172,7 @@ while True:
             os.remove(os.path.join(root, name))
         for name in dirs:
             os.rmdir(os.path.join(root, name))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
     s.send((user_identifier + ",1").encode())
     old_client(s)
