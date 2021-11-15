@@ -168,6 +168,7 @@ s.close()
 w = Watcher()
 
 while True:
+    w = Watcher()
     w.run()
     for root, dirs, files in os.walk(os.getcwd(), topdown=False):
         for name in files:
