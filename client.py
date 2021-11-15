@@ -157,8 +157,8 @@ if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     new_client(s)
 else:
-
     old_client(s)
+
 s.close()
 w = Watcher()
 w.run()
