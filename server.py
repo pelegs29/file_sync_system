@@ -4,6 +4,10 @@ import string
 import os
 
 
+# If we got user_identifier as parameter, it means we are old clients and
+# we should pull from the server the folder.
+# we also use this method every time the "time_to_reach" passes, because we want to get
+# the most updated version of the folder.
 def existing_client(client_sock, path):
     for path, dirs, files in os.walk(path):
         for file in files:
@@ -21,6 +25,8 @@ def existing_client(client_sock, path):
     client_sock.send("0,0,0".encode())
 
 
+# If we didn't get user_identifier as parameter, it means we are new clients and
+# we should push the folder to the server.
 def new_client(client_sock):
     user_id = generate_user_identifier()
     client_sock.send(user_id.encode())
@@ -42,10 +48,12 @@ def new_client(client_sock):
             break
 
 
+# get all the folder names in certain path.
 def list_dirs(path):
     return [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
 
 
+# generate random user identifier which contains digits and letters.
 def generate_user_identifier():
     return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 

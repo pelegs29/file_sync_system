@@ -54,8 +54,7 @@ def new_client(sock):
 
 
 def old_client(sock):
-    os.makedirs(user_identifier, exist_ok=True)
-    os.chdir(os.path.join(os.getcwd(), user_identifier))
+    os.chdir(folder_path)
     # TODO test large files.
     while True:
         data = sock.recv(1024).decode("UTF-8", 'strict')
@@ -143,12 +142,11 @@ s.send((user_identifier + ",NEW").encode())
 
 # In case we are new client.
 # TODO deal with folder names of ","
-if user_identifier == "NEW,NEW":
+if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     new_client(s)
 else:
     old_client(s)
-
 s.close()
 w = Watcher()
 w.run()
