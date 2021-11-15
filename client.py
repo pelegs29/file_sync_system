@@ -30,8 +30,46 @@ def port_check(port_input):
 
 
 def time_to_reach_check(time_to_connect):
-    if not str(time_to_connect).isnumeric():
+    try:
+        float(time_to_connect)
+    except ValueError:
         raise Exception("Given time to reach is not valid")
+
+
+def new_client(sock):
+    for path, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(path, file)
+            file_name = os.path.relpath(file_path, folder_path)
+            file_size = str(os.path.getsize(file_path))
+            s.send(("file," + file_name + "," + file_size).encode())
+            f = open(file_path, "r")
+            s.send(f.read().encode())
+        for folder in dirs:
+            # folder_path = os.path.join(path, folder)
+            # folder_name = os.path.relpath(folder_path, folder_path)
+            folder_size = str(0)
+            s.send(("folder," + folder + "," + folder_size).encode())
+    s.send("0,0,0".encode())
+
+
+def old_client(sock):
+    os.makedirs(user_identifier, exist_ok=True)
+    os.chdir(os.path.join(os.getcwd(), user_identifier))
+    # TODO test large files.
+    while True:
+        data = sock.recv(1024).decode("UTF-8", 'strict')
+        file_type, file_name, file_size = data.split(',')
+        if file_type == "file":
+            f = open(file_name, "wb")
+            data = sock.recv(int(file_size))
+            f.write(data)
+            f.close()
+        elif file_type == "folder":
+            os.makedirs(file_name, exist_ok=True)
+            os.chdir(os.path.join(os.getcwd(), file_name))
+        else:
+            break
 
 
 # running input checks
@@ -47,10 +85,11 @@ time_to_reach_check(sys.argv[4])
 ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = sys.argv[3]
-time_to_reach = sys.argv[4]
+time_to_reach = float(sys.argv[4])
+
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
-    user_identifier = "NO"
+    user_identifier = "NEW"
 else:
     user_identifier = sys.argv[5]
 
@@ -77,7 +116,7 @@ class Watcher:
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
-        change = ""
+        s.connect((ip, port))
         if event.is_directory:
             if event.event_type == 'created':
                 change = "Created new folder" + event.src_path
@@ -95,36 +134,34 @@ class Handler(FileSystemEventHandler):
             change = "file moved."
         elif event.event_type == 'deleted':
             change = "file deleted."
-        print(change)
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('192.168.220.128', 12345))
-s.send(user_identifier.encode())
+s.connect((ip, port))
+s.send((user_identifier + ",NEW").encode())
 
-# getting old/new.
-data = s.recv(100)
 
 # In case we are new client.
 # TODO deal with folder names of ","
-if data.decode("UTF-8", 'strict') == "NEW":
+if user_identifier == "NEW,NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
-    for path, dirs, files in os.walk(folder_path):
-        for file in files:
-            file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, folder_path)
-            file_size = str(os.path.getsize(file_path))
-            s.send(("file," + file_name + "," + file_size).encode())
-            f = open(file_path, "r")
-            s.send(f.read().encode())
-        for folder in dirs:
-            # folder_path = os.path.join(path, folder)
-            # folder_name = os.path.relpath(folder_path, folder_path)
-            folder_size = str(0)
-            s.send(("folder," + folder + "," + folder_size).encode())
-    s.send("0,0,0".encode())
+    new_client(s)
+else:
+    old_client(s)
+
+s.close()
+w = Watcher()
+w.run()
+while True:
+    time.sleep(time_to_reach)
+    for root, dirs, files in os.walk(user_identifier, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    s.connect((ip, port))
+    s.send((user_identifier + ",get_update").encode())
+    old_client(s)
     s.close()
 
-# w = Watcher()
-# w.run()
 # s.close()
