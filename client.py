@@ -130,6 +130,7 @@ class Watcher:
                 sock.send((user_identifier + ",1").encode())
                 old_client(sock)
                 sock.close()
+                time.sleep(5)
                 dog_flag = False
         except Exception:
             self.observer.stop()
