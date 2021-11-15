@@ -163,16 +163,15 @@ s.close()
 w = Watcher()
 w.run()
 
-# while True:
-#     time.sleep(time_to_reach)
-#     for root, dirs, files in os.walk(user_identifier, topdown=False):
-#         for name in files:
-#             os.remove(os.path.join(root, name))
-#         for name in dirs:
-#             os.rmdir(os.path.join(root, name))
-#     s.connect((ip, port))
-#     s.send((user_identifier + ",get_update").encode())
-#     old_client(s)
-#     s.close()
+while True:
+    time.sleep(time_to_reach)
+    for root, dirs, files in os.walk(user_identifier, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    s.connect((ip, port))
+    s.send((user_identifier + ",1").encode())
+    old_client(s)
+    s.close()
 
-# s.close()
