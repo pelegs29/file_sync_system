@@ -63,7 +63,8 @@ def new_client(sock):
 
 
 def old_client(sock):
-    os.chdir(folder_path)
+    if os.getcwd() != folder_path:
+        os.chdir(folder_path)
     # TODO test large files.
     while True:
         data_size = int.from_bytes(sock.recv(4), 'big')
@@ -93,7 +94,7 @@ time_to_reach_check(sys.argv[4])
 # argument 5 -> user identifier(optional).
 ip = sys.argv[1]
 port = int(sys.argv[2])
-folder_path = sys.argv[3]
+folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
@@ -104,7 +105,7 @@ else:
 
 
 class Watcher:
-    DIRECTORY_TO_WATCH = os.path.abspath(folder_path)
+    DIRECTORY_TO_WATCH = folder_path
 
     def __init__(self):
         self.observer = Observer()
