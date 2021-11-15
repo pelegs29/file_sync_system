@@ -2,6 +2,18 @@ import socket
 import random
 import string
 import os
+import sys
+
+
+# input check - raise exception if the program args count isn't 1.
+if len(sys.argv) != 2:
+    raise Exception("Only 1 argument allowed.")
+
+
+# input check - raise exception if the port given is not a five digits number
+def port_check(port_input):
+    if len(str(port_input)) != 5 or not str(port_input).isnumeric():
+        raise Exception("Given port is not valid")
 
 
 # If we got user_identifier as parameter, it means we are old clients and
@@ -58,8 +70,10 @@ def generate_user_identifier():
     return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
+port_check(sys.argv[1])
+port = int(sys.argv[1])
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('', 12345))
+server.bind(('', port))
 server.listen(5)
 while True:
     client_socket, client_address = server.accept()
