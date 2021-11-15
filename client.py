@@ -5,9 +5,11 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os
 
+
 # input check - raise exception if the program args count isn't 4 or 5
-if len(sys.argv) != 5 and len(sys.argv) != 6:
-    raise Exception("Only 4 or 5 arguments allowed.")
+def args_num_check():
+    if len(sys.argv) != 5 and len(sys.argv) != 6:
+        raise Exception("Only 4 or 5 arguments allowed.")
 
 
 # input check - raise exception if one of the condition is met :
@@ -79,6 +81,7 @@ def old_client(sock):
 
 
 # running input checks
+args_num_check()
 ip_check(sys.argv[1])
 port_check(sys.argv[2])
 time_to_reach_check(sys.argv[4])
@@ -148,13 +151,13 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 s.send((user_identifier + ",0").encode())
 
-
 # In case we are new client.
 # TODO deal with folder names of ","
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     new_client(s)
 else:
+
     old_client(s)
 s.close()
 w = Watcher()
