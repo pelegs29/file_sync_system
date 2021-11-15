@@ -115,16 +115,7 @@ class Watcher:
         self.observer.start()
         try:
             while True:
-                time.sleep(time_to_reach)
-                for root, dirs, files in os.walk(user_identifier, topdown=False):
-                    for name in files:
-                        os.remove(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
-                s.connect((ip, port))
-                s.send((user_identifier + ",1").encode())
-                old_client(s)
-                s.close()
+                time.sleep(5)
         except Exception:
             self.observer.stop()
             print("error")
@@ -170,4 +161,18 @@ else:
 
 s.close()
 w = Watcher()
-w.run()
+
+while True:
+    w.run()
+    time.sleep(time_to_reach)
+    w.observer.stop()
+    w.observer.join()
+    for root, dirs, files in os.walk(folder_path, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    s.connect((ip, port))
+    s.send((user_identifier + ",1").encode())
+    old_client(s)
+    s.close()
