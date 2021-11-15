@@ -110,6 +110,9 @@ class Watcher:
     def __init__(self):
         self.observer = Observer()
 
+        # if flag is False - use watchdog.
+        self.flag = False
+
     def run(self):
         event_handler = Handler()
         self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
@@ -117,8 +120,18 @@ class Watcher:
         try:
             while True:
                 time.sleep(time_to_reach)
-                self.observer.stop()
-                break
+                self.flag = True
+                for root, dirs, files in os.walk(os.getcwd(), topdown=False):
+                    for name in files:
+                        os.remove(os.path.join(root, name))
+                    for name in dirs:
+                        os.rmdir(os.path.join(root, name))
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((ip, port))
+                s.send((user_identifier + ",1").encode())
+                old_client(s)
+                s.close()
+                self.flag = False
         except Exception:
             self.observer.stop()
             print("error")
@@ -127,29 +140,30 @@ class Watcher:
 
 class Handler(FileSystemEventHandler):
     @staticmethod
-    def on_any_event(event):
-        event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        event_sock.connect((ip, port))
-        event_sock.send((user_identifier + ",2").encode())
-        if event.is_directory:
-            if event.event_type == 'created':
-                rel_path = os.path.relpath(event.src_path, folder_path)
-                event_sock.send(("folder,create," + rel_path).encode())
+    def on_any_event(self, event):
+        if self.flag == False:
+            event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            event_sock.connect((ip, port))
+            event_sock.send((user_identifier + ",2").encode())
+            if event.is_directory:
+                if event.event_type == 'created':
+                    rel_path = os.path.relpath(event.src_path, folder_path)
+                    event_sock.send(("folder,create," + rel_path).encode())
+                elif event.event_type == 'modified':
+                    return None
+                elif event.event_type == 'moved':
+                    change = "folder moved." + event.src_path
+                elif event.event_type == 'deleted':
+                    change = "folder deleted." + event.src_path
+            elif event.event_type == 'created':
+                change = "Created new file"
             elif event.event_type == 'modified':
-                return None
+                change = "file modified."
             elif event.event_type == 'moved':
-                change = "folder moved." + event.src_path
+                change = "file moved."
             elif event.event_type == 'deleted':
-                change = "folder deleted." + event.src_path
-        elif event.event_type == 'created':
-            change = "Created new file"
-        elif event.event_type == 'modified':
-            change = "file modified."
-        elif event.event_type == 'moved':
-            change = "file moved."
-        elif event.event_type == 'deleted':
-            change = "file deleted."
-        event_sock.close()
+                change = "file deleted."
+            event_sock.close()
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -166,17 +180,4 @@ else:
 
 s.close()
 w = Watcher()
-
-while True:
-    w = Watcher()
-    w.run()
-    for root, dirs, files in os.walk(os.getcwd(), topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((ip, port))
-    s.send((user_identifier + ",1").encode())
-    old_client(s)
-    s.close()
+w.run()
