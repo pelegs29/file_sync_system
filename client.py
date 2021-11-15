@@ -42,15 +42,15 @@ def new_client(sock):
             file_path = os.path.join(path, file)
             file_name = os.path.relpath(file_path, folder_path)
             file_size = str(os.path.getsize(file_path))
-            s.send(("file," + file_name + "," + file_size).encode())
+            sock.send(("file," + file_name + "," + file_size).encode())
             f = open(file_path, "r")
-            s.send(f.read().encode())
+            sock.send(f.read().encode())
         for folder in dirs:
             # folder_path = os.path.join(path, folder)
             # folder_name = os.path.relpath(folder_path, folder_path)
             folder_size = str(0)
-            s.send(("folder," + folder + "," + folder_size).encode())
-    s.send("0,0,0".encode())
+            sock.send(("folder," + folder + "," + folder_size).encode())
+    sock.send("0,0,0".encode())
 
 
 def old_client(sock):
