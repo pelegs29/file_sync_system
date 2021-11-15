@@ -60,6 +60,10 @@ def new_client(client_sock):
             break
 
 
+# def event(user_ident, client_sock):
+#     data =
+
+
 # get all the folder names in certain path.
 def list_dirs(path):
     return [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
