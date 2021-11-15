@@ -63,8 +63,8 @@ def old_client(sock):
     os.chdir(folder_path)
     # TODO test large files.
     while True:
-        data = sock.recv(4).bytes_to_int(4)
-        data = sock.recv(data).decode("UTF-8", 'strict')
+        data_size = int.from_bytes(sock.recv(4), 'big')
+        data = sock.recv(data_size).decode("UTF-8", 'strict')
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
