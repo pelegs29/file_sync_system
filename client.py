@@ -96,6 +96,7 @@ ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
+dog_flag = False
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
@@ -110,9 +111,6 @@ class Watcher:
     def __init__(self):
         self.observer = Observer()
 
-        # if flag is False - use watchdog.
-        self.flag = False
-
     def run(self):
         event_handler = Handler()
         self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
@@ -120,7 +118,8 @@ class Watcher:
         try:
             while True:
                 time.sleep(time_to_reach)
-                self.flag = True
+                global dog_flag
+                dog_flag = True
                 for root, dirs, files in os.walk(os.getcwd(), topdown=False):
                     for name in files:
                         os.remove(os.path.join(root, name))
@@ -131,7 +130,7 @@ class Watcher:
                 s.send((user_identifier + ",1").encode())
                 old_client(s)
                 s.close()
-                self.flag = False
+                dog_flag = False
         except Exception:
             self.observer.stop()
             print("error")
@@ -140,8 +139,9 @@ class Watcher:
 
 class Handler(FileSystemEventHandler):
     @staticmethod
-    def on_any_event(self, event):
-        if self.flag == False:
+    def on_any_event(event):
+        # global dog_flag
+        if dog_flag == False:
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
             event_sock.send((user_identifier + ",2").encode())
