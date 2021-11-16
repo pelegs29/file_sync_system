@@ -138,39 +138,42 @@ class Watcher:
         self.observer.join()
 
 
+def handle_event(event_type, file_type, sock, event):
+    rel_path = os.path.relpath(event.src_path, folder_path)
+    event_desc = event_type + "," + file_type + "," + rel_path
+    sock.send(len(event_desc).to_bytes(4, 'big'))
+    sock.send(event_desc.encode())
+
+
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
         if event.is_directory and event.event_type == "modified":
             return None
-        change = ""
+        file_type = ""
         # global dog_flag
-        if dog_flag == False:
+        if not dog_flag:
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
             event_sock.send((user_identifier + ",2").encode())
             if event.is_directory:
+                file_type = "folder"
                 if event.event_type == 'created':
-                    rel_path = os.path.relpath(event.src_path, folder_path)
-                    event_desc = "created,folder," + rel_path
-                    event_sock.send(len(event_desc).to_bytes(4, 'big'))
-                    event_sock.send(event_desc.encode())
-                    change = "folder created." + event.src_path
-                # elif event.event_type == 'modified':
-                #     return None
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'moved':
-                    change = "folder moved." + event.src_path
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'deleted':
-                    change = "folder deleted." + event.src_path
-            elif event.event_type == 'created':
-                change = "Created new file" + event.src_path
-            elif event.event_type == 'modified':
-                change = "file modified." + event.src_path
-            elif event.event_type == 'moved':
-                change = "file moved." + event.src_path
-            elif event.event_type == 'deleted':
-                change = "file deleted." + event.src_path
-            print(change)
+                    handle_event(event.event_type, file_type, event_sock, event)
+            else:
+                file_type = "file"
+                if event.event_type == 'created':
+                    handle_event(event.event_type, file_type, event_sock, event)
+                elif event.event_type == 'modified':
+                    handle_event(event.event_type, file_type, event_sock, event)
+                elif event.event_type == 'moved':
+                    handle_event(event.event_type, file_type, event_sock, event)
+                elif event.event_type == 'deleted':
+                    handle_event(event.event_type, file_type, event_sock, event)
             event_sock.close()
 
 

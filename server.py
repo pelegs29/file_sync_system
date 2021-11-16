@@ -89,6 +89,8 @@ def event(sock, fol_path):
     if event_type == "created":
         if file_type == "folder":
             os.makedirs(os.path.join(fol_path, path))
+    if event_type == "deleted":
+        os.rmdir(os.path.join(fol_path, path))
 
 
 # input checks
