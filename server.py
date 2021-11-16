@@ -102,7 +102,9 @@ while True:
     if client_id in folders_list:
         folder_path = os.path.join(os.getcwd(), client_id)
         if operation == "2":
-            break
+            event_size = int.from_bytes(client_socket.recv(4), 'big')
+            event = client_socket.recv(event_size)
+            print(event.decode())
         else:
             existing_client(client_socket, folder_path)
     else:
