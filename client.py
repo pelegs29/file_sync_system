@@ -139,7 +139,10 @@ class Watcher:
 
 
 def handle_event(event_type, file_type, sock, event):
-    rel_path = os.path.relpath(event.src_path, folder_path)
+    if event_type == "moved":
+        rel_path = os.path.relpath(event.dest_path, folder_path)
+    else:
+        rel_path = os.path.relpath(event.src_path, folder_path)
     event_desc = event_type + "," + file_type + "," + rel_path
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
