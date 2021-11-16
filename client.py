@@ -125,11 +125,12 @@ class Watcher:
                         os.remove(os.path.join(root, name))
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((ip, port))
-                s.send((user_identifier + ",1").encode())
-                old_client(s)
-                s.close()
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect((ip, port))
+                sock.send((user_identifier + ",1").encode())
+                old_client(sock)
+                sock.close()
+                time.sleep(5)
                 dog_flag = False
         except Exception:
             self.observer.stop()
