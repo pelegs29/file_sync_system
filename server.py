@@ -90,11 +90,16 @@ def event(sock, fol_path):
         if file_type == "folder":
             os.makedirs(os.path.join(fol_path, path))
     if event_type == "deleted":
-        for root, dirs, files in os.walk(os.path.join(fol_path, path), topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
+        if file_type == "folder":
+            for root, dirs, files in os.walk(os.path.join(fol_path, path), topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+    if event_type == "moved":
+        if file_type == "folder":
+            return None
+
         os.rmdir(os.path.join(fol_path, path))
 
 
