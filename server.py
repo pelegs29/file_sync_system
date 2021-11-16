@@ -47,11 +47,9 @@ def existing_client(client_sock, path):
 
 # If we didn't get user_identifier as parameter, it means we are new clients and
 # we should push the folder to the server.
-def new_client(client_sock):
-    user_id = generate_user_identifier()
-    client_sock.send(user_id.encode())
-    os.makedirs(user_id, exist_ok=True)
-    os.chdir(os.path.join(os.getcwd(), user_id))
+def new_client(client_sock, dir):
+    os.makedirs(dir, exist_ok=True)
+    os.chdir(os.path.join(os.getcwd(), dir))
     # TODO test large files.
     while True:
         data_size = int.from_bytes(client_sock.recv(4), 'big')
@@ -98,8 +96,7 @@ def event(sock, fol_path):
                     os.rmdir(os.path.join(root, name))
     if event_type == "moved":
         if file_type == "folder":
-            return None
-
+            new_client(sock, os.path.join(fol_path, path))
         os.rmdir(os.path.join(fol_path, path))
 
 
@@ -127,5 +124,7 @@ while True:
         else:
             existing_client(client_socket, folder_path)
     else:
-        new_client(client_socket)
+        user_id = generate_user_identifier()
+        client_socket.send(user_id.encode())
+        new_client(client_socket, user_id)
     client_socket.close()

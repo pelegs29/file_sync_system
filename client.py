@@ -38,11 +38,11 @@ def time_to_reach_check(time_to_connect):
         raise Exception("Given time to reach is not valid")
 
 
-def new_client(sock):
-    for path, dirs, files in os.walk(folder_path):
+def new_client(sock, fol_path):
+    for path, dirs, files in os.walk(fol_path):
         for file in files:
             file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, folder_path)
+            file_name = os.path.relpath(file_path, fol_path)
             file_size = str(os.path.getsize(file_path))
             protocol = "file," + file_name + "," + file_size
             protocol_size = len(protocol).to_bytes(4, 'big')
@@ -51,8 +51,8 @@ def new_client(sock):
             f = open(file_path, "r")
             sock.send(f.read().encode())
         for folder in dirs:
-            fol_path = os.path.join(path, folder)
-            folder_name = os.path.relpath(fol_path, folder_path)
+            fold_path = os.path.join(path, folder)
+            folder_name = os.path.relpath(fold_path, folder_path)
             folder_size = str(0)
             protocol = "folder," + folder_name + "," + folder_size
             protocol_size = len(protocol).to_bytes(4, 'big')
@@ -113,7 +113,7 @@ class Watcher:
 
     def run(self):
         event_handler = Handler()
-        self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=False)
+        self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
         self.observer.start()
         try:
             while True:
@@ -143,6 +143,8 @@ def handle_event(event_type, file_type, sock, event):
     event_desc = event_type + "," + file_type + "," + rel_path
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
+    if event.event_type == "moved" and file_type == "folder":
+        new_client(sock, event.src_path)
 
 
 class Handler(FileSystemEventHandler):
@@ -185,7 +187,7 @@ s.send((user_identifier + ",0").encode())
 # TODO deal with folder names of ","
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
-    new_client(s)
+    new_client(s, folder_path)
 else:
     old_client(s)
 
