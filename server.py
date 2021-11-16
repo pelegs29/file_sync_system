@@ -82,6 +82,15 @@ def generate_user_identifier():
     return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
+def event(sock, fol_path):
+    event_size = int.from_bytes(sock.recv(4), 'big')
+    data = sock.recv(event_size).decode("UTF-8", 'strict')
+    event_type, file_type, path = data.split(',')
+    if event_type == "created":
+        if file_type == "folder":
+            os.makedirs(os.path.join(fol_path, path))
+
+
 # input checks
 args_num_check()
 port_check(sys.argv[1])
@@ -102,9 +111,7 @@ while True:
     if client_id in folders_list:
         folder_path = os.path.join(os.getcwd(), client_id)
         if operation == "2":
-            event_size = int.from_bytes(client_socket.recv(4), 'big')
-            event = client_socket.recv(event_size)
-            print(event.decode())
+            event(client_socket, folder_path)
         else:
             existing_client(client_socket, folder_path)
     else:
