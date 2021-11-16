@@ -141,6 +141,8 @@ class Watcher:
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
+        if event.is_directory and event.event_type == "modified":
+            return None
         change = ""
         # global dog_flag
         if dog_flag == False:
@@ -150,12 +152,12 @@ class Handler(FileSystemEventHandler):
             if event.is_directory:
                 if event.event_type == 'created':
                     rel_path = os.path.relpath(event.src_path, folder_path)
-                    event_desc = "folder,create," + rel_path
+                    event_desc = "created,folder," + rel_path
                     event_sock.send(len(event_desc).to_bytes(4, 'big'))
                     event_sock.send(event_desc.encode())
                     change = "folder created." + event.src_path
-                elif event.event_type == 'modified':
-                    return None
+                # elif event.event_type == 'modified':
+                #     return None
                 elif event.event_type == 'moved':
                     change = "folder moved." + event.src_path
                 elif event.event_type == 'deleted':
