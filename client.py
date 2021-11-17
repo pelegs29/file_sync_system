@@ -100,7 +100,12 @@ def update(sock):
         elif event_type == "deleted":
             if file_type == "folder":
                 if os.path.isdir(os.path.join(folder_path, path)):
-                    os.rmdir(os.path.join(folder_path, path))
+                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
+                        for name in files:
+                            os.remove(os.path.join(root, name))
+                        for name in dirs:
+                            os.rmdir(os.path.join(root, name))
+                    os.rmdir(os.path.join(os.getcwd(), path))
             else:
                 if os.path.isfile(os.path.join(folder_path, path)):
                     os.remove(os.path.join(folder_path, path))
