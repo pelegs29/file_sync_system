@@ -156,11 +156,10 @@ class Watcher:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
                 sock.send((user_identifier + ",1").encode())
-                check = s.recv(1).decode("UTF-8", 'strict')
+                check = sock.recv(1).decode("UTF-8", 'strict')
                 if check == "1":
                     update(sock)
                 sock.close()
-                time.sleep(5)
                 dog_flag = False
         except Exception:
             self.observer.stop()
