@@ -70,7 +70,9 @@ def update_client(update_list):
         client_socket.send(s.encode())
         event_type, file_type, path = s.split(',')
         if (event_type == "created" or event_type == "modified") and file_type == "file":
-            existing_client(client_socket, path)
+            client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
+            f = open(os.path.join(os.getcwd(), path))
+            client_socket.send(f.read().encode())
     client_socket.send("0,0,0".encode())
 
 
@@ -96,7 +98,9 @@ def event(sock):
         if file_type == "folder":
             os.makedirs(os.path.join(os.getcwd(), path))
         else:
-            new_client(sock)
+            size = int.from_bytes(sock.recv(4), 'big')
+            f = open(os.path.join(os.getcwd(), path))
+            f.write(sock.recv(size))
     if event_type == "deleted":
         if file_type == "folder":
             for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
