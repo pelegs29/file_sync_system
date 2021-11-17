@@ -104,7 +104,7 @@ def event(sock):
             f.write(sock.recv(size))
             f.close()
     if event_type == "deleted":
-        if file_type == "folder":
+        if file_type == "folder" and os.path.isdir(os.path.join(os.getcwd(), path)):
             for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
@@ -112,16 +112,39 @@ def event(sock):
                     os.rmdir(os.path.join(root, name))
             os.rmdir(os.path.join(os.getcwd(), path))
         else:
-            os.remove(os.path.join(os.getcwd(), path))
+            if os.path.isfile(os.path.join(os.getcwd(), path)):
+                os.remove(os.path.join(os.getcwd(), path))
     if event_type == "modified":
         size = int.from_bytes(sock.recv(4), 'big')
         f = open(os.path.join(os.getcwd(), path), "wb")
         f.write(sock.recv(size))
         f.close()
-    # if event_type == "moved":
-    # if file_type == "folder":
-    #    new_client(sock)
-    # delete
+    if event_type == "moved":
+        src, dest = str(path).split('>')
+        if os.path.exists(os.path.join(os.getcwd(), src)):
+            if file_type == "folder":
+                for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
+                    for name in files:
+                        name = open(os.path.join(root, name), "rb")
+                        f = open(os.path.join(os.getcwd(), dest), "wb")
+                        f.write(name.read())
+                        f.close()
+                        name.close()
+                    for name in dirs:
+                        os.makedirs(os.path.join(root, name))
+                for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
+                    for name in files:
+                        os.remove(os.path.join(root, name))
+                    for name in dirs:
+                        os.rmdir(os.path.join(root, name))
+                os.rmdir(os.path.join(os.getcwd(), src))
+            else:
+                src_file = open(os.path.join(os.getcwd(), src), "rb")
+                dest_file = open(os.path.join(os.getcwd(), dest), "wb")
+                dest_file.write(src_file.read())
+                src_file.close()
+                dest_file.close()
+                os.remove(os.path.join(os.getcwd(), src))
 
 
 # input checks
