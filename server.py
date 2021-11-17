@@ -102,10 +102,11 @@ def event(sock):
                     os.remove(os.path.join(root, name))
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
+            os.rmdir(os.path.join(os.getcwd(), path))
     if event_type == "moved":
         if file_type == "folder":
             new_client(sock)
-            os.rmdir(os.path.join(os.getcwd(), path))
+
 
 
 # input checks
