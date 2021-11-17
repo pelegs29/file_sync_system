@@ -25,7 +25,7 @@ def existing_client(client_sock, fold_path):
     for path, dirs, files in os.walk(fold_path):
         for file in files:
             file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, client_id)
+            file_name = os.path.relpath(file_path, os.getcwd())
             file_size = str(os.path.getsize(file_path))
             protocol = "file," + file_name + "," + file_size
             protocol_size = len(protocol).to_bytes(4, 'big')
@@ -129,6 +129,8 @@ while True:
     client_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
     folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
+        if client_address not in changes_map.get(user_id).keys():
+            (changes_map[user_id])[client_address] = []
         os.chdir(os.path.join(current_dir, user_id))
         if operation == "2":
             event(client_socket)
