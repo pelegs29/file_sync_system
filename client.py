@@ -184,12 +184,13 @@ def handle_event(event_type, file_type, sock, event):
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
     if (event.event_type == "created" or "modified") and file_type == "file":
-        sock.send(os.path.getsize(event.src_path).to_bytes(4, 'big'))
-        f = open(event.src_path, "rb")
-        sock.send(f.read())
-        f.close()
+        if os.path.isfile(event.src_path):
+            sock.send(os.path.getsize(event.src_path).to_bytes(4, 'big'))
+            f = open(event.src_path, "rb")
+            sock.send(f.read())
+            f.close()
     # if event.event_type == "moved" and file_type == "folder":
-        # new_client(sock, event.src_path)
+    # new_client(sock, event.src_path)
 
 
 class Handler(FileSystemEventHandler):
