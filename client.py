@@ -94,8 +94,9 @@ def update(sock):
                 os.makedirs(os.path.join(folder_path, path))
             else:
                 size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(os.getcwd(), path))
+                f = open(os.path.join(os.getcwd(), path), "wb")
                 f.write(sock.recv(size))
+                f.close()
         elif event_type == "deleted":
             if file_type == "folder":
                 os.rmdir(os.path.join(folder_path, path))
@@ -104,16 +105,17 @@ def update(sock):
         elif event_type == "modified":
             if file_type == "file":
                 size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(os.getcwd(), path))
+                f = open(os.path.join(os.getcwd(), path), "wb")
                 f.write(sock.recv(size))
+                f.close()
         else:
             src, dest = str(path).split('>')
             if file_type == "folder":
                 os.rmdir(os.path.join(folder_path, src))
                 os.makedirs(os.path.join(folder_path, dest))
             else:
-                f = open(os.path.join(folder_path, src))
-                f.write(os.path.join(folder_path, dest))
+                f = open(os.path.join(folder_path, src), "wb")
+                f.write(os.path.join(folder_path, dest).encode())
                 f.close()
                 os.remove(os.path.join(folder_path, src))
 
@@ -185,6 +187,7 @@ def handle_event(event_type, file_type, sock, event):
         sock.send(os.path.getsize(event.src_path).to_bytes(4, 'big'))
         f = open(event.src_path)
         sock.send(f.read().encode())
+        f.close()
     if event.event_type == "moved" and file_type == "folder":
         new_client(sock, event.src_path)
 
