@@ -48,8 +48,8 @@ def new_client(sock, fol_path):
             protocol_size = len(protocol).to_bytes(4, 'big')
             sock.send(protocol_size)
             sock.send(protocol.encode())
-            f = open(file_path, "r")
-            sock.send(f.read().encode())
+            f = open(file_path, "rb")
+            sock.send(f.read())
         for folder in dirs:
             fold_path = os.path.join(path, folder)
             folder_name = os.path.relpath(fold_path, folder_path)
@@ -185,8 +185,8 @@ def handle_event(event_type, file_type, sock, event):
     sock.send(event_desc.encode())
     if (event.event_type == "created" or "modified") and file_type == "file":
         sock.send(os.path.getsize(event.src_path).to_bytes(4, 'big'))
-        f = open(event.src_path)
-        sock.send(f.read().encode())
+        f = open(event.src_path, "rb")
+        sock.send(f.read())
         f.close()
     if event.event_type == "moved" and file_type == "folder":
         new_client(sock, event.src_path)
