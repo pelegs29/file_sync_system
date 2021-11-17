@@ -71,8 +71,8 @@ def update_client(update_list):
         event_type, file_type, path = s.split(',')
         if (event_type == "created" or event_type == "modified") and file_type == "file":
             client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
-            f = open(os.path.join(os.getcwd(), path))
-            client_socket.send(f.read().encode())
+            f = open(os.path.join(os.getcwd(), path), "rb")
+            client_socket.send(f.read())
             f.close()
     client_socket.send("0,0,0".encode())
 
@@ -100,7 +100,7 @@ def event(sock):
             os.makedirs(os.path.join(os.getcwd(), path))
         else:
             size = int.from_bytes(sock.recv(4), 'big')
-            f = open(os.path.join(os.getcwd(), path))
+            f = open(os.path.join(os.getcwd(), path), "wb")
             f.write(sock.recv(size))
             f.close()
     if event_type == "deleted":
@@ -113,7 +113,7 @@ def event(sock):
             os.rmdir(os.path.join(os.getcwd(), path))
     if event_type == "modified":
         size = int.from_bytes(sock.recv(4), 'big')
-        f = open(os.path.join(os.getcwd(), path))
+        f = open(os.path.join(os.getcwd(), path), "wb")
         f.write(sock.recv(size))
         f.close()
     # if event_type == "moved":
