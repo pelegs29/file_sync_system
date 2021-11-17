@@ -123,6 +123,7 @@ def event(sock):
         src, dest = str(path).split('>')
         if os.path.exists(os.path.join(os.getcwd(), src)):
             if file_type == "folder":
+                os.makedirs(os.path.join(os.getcwd(), dest))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
                     for name in files:
                         name = open(os.path.join(root, name), "rb")
