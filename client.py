@@ -195,7 +195,7 @@ def handle_event(event_type, file_type, sock, event):
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
-        if event.is_directory and event.event_type == "modified":
+        if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
             return None
         file_type = ""
         # global dog_flag
