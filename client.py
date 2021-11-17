@@ -159,13 +159,13 @@ class Watcher:
                 time.sleep(time_to_reach)
                 global dog_flag
                 dog_flag = True
-                # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((ip, port))
-                s.send((user_identifier + ",1").encode())
-                check = s.recv(1).decode("UTF-8", 'strict')
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect((ip, port))
+                sock.send((user_identifier + ",1").encode())
+                check = sock.recv(1).decode("UTF-8", 'strict')
                 if check == "1":
-                    update(s)
-                s.close()
+                    update(sock)
+                sock.close()
                 dog_flag = False
         except Exception:
             self.observer.stop()
@@ -200,28 +200,28 @@ class Handler(FileSystemEventHandler):
         file_type = ""
         # global dog_flag
         if not dog_flag:
-            # event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((ip, port))
-            s.send((user_identifier + ",2").encode())
+            event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            event_sock.connect((ip, port))
+            event_sock.send((user_identifier + ",2").encode())
             if event.is_directory:
                 file_type = "folder"
                 if event.event_type == 'created':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'moved':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'deleted':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
             else:
                 file_type = "file"
                 if event.event_type == 'created':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'modified':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'moved':
-                    handle_event(event.event_type, file_type, s, event)
+                    handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'deleted':
-                    handle_event(event.event_type, file_type, s, event)
-            s.close()
+                    handle_event(event.event_type, file_type, event_sock, event)
+            event_sock.close()
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
