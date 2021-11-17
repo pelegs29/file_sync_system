@@ -177,7 +177,7 @@ def handle_event(event_type, file_type, sock, event):
     event_desc = event_type + "," + file_type + "," + rel_path
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
-    if event.event_type == "created" and file_type == "file":
+    if (event.event_type == "created" or "modified") and file_type == "file":
         new_client(sock, event.src_path)
     if event.event_type == "moved" and file_type == "folder":
         new_client(sock, event.src_path)
