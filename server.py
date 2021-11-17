@@ -31,8 +31,8 @@ def existing_client(client_sock, fold_path):
             protocol_size = len(protocol).to_bytes(4, 'big')
             client_sock.send(protocol_size)
             client_sock.send(protocol.encode())
-            f = open(file_path, "r")
-            client_socket.send(f.read().encode())
+            f = open(file_path, "rb")
+            client_socket.send(f.read())
         for folder in dirs:
             fol_path = os.path.join(path, folder)
             folder_name = os.path.relpath(fol_path, path)
