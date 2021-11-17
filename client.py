@@ -188,8 +188,8 @@ def handle_event(event_type, file_type, sock, event):
         f = open(event.src_path, "rb")
         sock.send(f.read())
         f.close()
-    if event.event_type == "moved" and file_type == "folder":
-        new_client(sock, event.src_path)
+    # if event.event_type == "moved" and file_type == "folder":
+        # new_client(sock, event.src_path)
 
 
 class Handler(FileSystemEventHandler):

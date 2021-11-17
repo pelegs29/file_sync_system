@@ -111,6 +111,8 @@ def event(sock):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(os.path.join(os.getcwd(), path))
+        else:
+            os.remove(os.path.join(os.getcwd(), path))
     if event_type == "modified":
         size = int.from_bytes(sock.recv(4), 'big')
         f = open(os.path.join(os.getcwd(), path), "wb")
