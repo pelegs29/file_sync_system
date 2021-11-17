@@ -95,6 +95,8 @@ def event(sock):
     if event_type == "created":
         if file_type == "folder":
             os.makedirs(os.path.join(os.getcwd(), path))
+        else:
+            new_client(sock)
     if event_type == "deleted":
         if file_type == "folder":
             for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
@@ -103,9 +105,9 @@ def event(sock):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(os.path.join(os.getcwd(), path))
-    if event_type == "moved":
-        if file_type == "folder":
-            new_client(sock)
+    # if event_type == "moved":
+    # if file_type == "folder":
+    #    new_client(sock)
 
 
 
