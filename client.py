@@ -62,6 +62,7 @@ def new_client(sock, fol_path):
     sock.send("0,0,0".encode())
 
 
+# TODO change name of function
 def old_client(sock):
     if os.getcwd() != folder_path:
         os.chdir(folder_path)
@@ -79,6 +80,38 @@ def old_client(sock):
             os.makedirs(file_name, exist_ok=True)
         else:
             break
+
+
+def update(sock):
+    while True:
+        size = int.from_bytes(sock.recv(4), 'big')
+        data = sock.recv(size).decode("UTF-8", 'strict')
+        if data == "0,0,0":
+            break
+        event_type, file_type, path = data.split(',')
+        if event_type == "created":
+            if file_type == "folder":
+                os.makedirs(os.path.join(folder_path, path))
+            else:
+                new_client(sock, os.path.join(folder_path, path))
+        elif event_type == "deleted":
+            if file_type == "folder":
+                os.rmdir(os.path.join(folder_path, path))
+            else:
+                os.remove(os.path.join(folder_path, path))
+        elif event_type == "modified":
+            # os.remove(os.path.join(folder_path, path))
+            new_client(sock, os.path.join(folder_path, path))
+        else:
+            src, dest = str(path).split('>')
+            if file_type == "folder":
+                os.rmdir(os.path.join(folder_path, src))
+                os.makedirs(os.path.join(folder_path, dest))
+            else:
+                f = open(os.path.join(folder_path, src))
+                f.write(os.path.join(folder_path, dest))
+                f.close()
+                os.remove(os.path.join(folder_path, src))
 
 
 # running input checks
@@ -120,15 +153,12 @@ class Watcher:
                 time.sleep(time_to_reach)
                 global dog_flag
                 dog_flag = True
-                for root, dirs, files in os.walk(os.getcwd(), topdown=False):
-                    for name in files:
-                        os.remove(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
                 sock.send((user_identifier + ",1").encode())
-                old_client(sock)
+                check = s.recv(1).decode("UTF-8", 'strict')
+                if check == "1":
+                    update(sock)
                 sock.close()
                 time.sleep(5)
                 dog_flag = False
