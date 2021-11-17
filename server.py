@@ -51,11 +51,7 @@ def new_client(client_sock):
     # TODO test large files.
     while True:
         data_size = int.from_bytes(client_sock.recv(4), 'big')
-        try:
-            data = client_sock.recv(data_size).decode("UTF-8", 'strict')
-        except UnicodeDecodeError:
-            print("ERROR")
-            client_sock.recv(20000)
+        data = client_sock.recv(data_size).decode("UTF-8", 'strict')
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")

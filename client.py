@@ -99,9 +99,11 @@ def update(sock):
                 f.close()
         elif event_type == "deleted":
             if file_type == "folder":
-                os.rmdir(os.path.join(folder_path, path))
+                if os.path.isdir(os.path.join(folder_path, path)):
+                    os.rmdir(os.path.join(folder_path, path))
             else:
-                os.remove(os.path.join(folder_path, path))
+                if os.path.isfile(os.path.join(folder_path, path)):
+                    os.remove(os.path.join(folder_path, path))
         elif event_type == "modified":
             if file_type == "file":
                 size = int.from_bytes(sock.recv(4), 'big')
@@ -111,7 +113,8 @@ def update(sock):
         else:
             src, dest = str(path).split('>')
             if file_type == "folder":
-                os.rmdir(os.path.join(folder_path, src))
+                if os.path.isdir(os.path.join(folder_path, path)):
+                    os.rmdir(os.path.join(folder_path, src))
                 os.makedirs(os.path.join(folder_path, dest))
             else:
                 f = open(os.path.join(folder_path, src), "wb")
