@@ -129,6 +129,8 @@ while True:
     client_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
     folders_list = list_dirs(os.getcwd())
     if client_id in folders_list:
+        if client_address not in changes_map.get(user_id).keys():
+            (changes_map[user_id])[client_address] = []
         os.chdir(os.path.join(current_dir, user_id))
         if operation == "2":
             event(client_socket)
