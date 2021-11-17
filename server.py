@@ -119,6 +119,7 @@ def event(sock):
     # if event_type == "moved":
     # if file_type == "folder":
     #    new_client(sock)
+    # delete
 
 
 # input checks
