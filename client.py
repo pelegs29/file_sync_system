@@ -199,8 +199,6 @@ class Handler(FileSystemEventHandler):
                     handle_event(event.event_type, file_type, event_sock, event)
                 elif event.event_type == 'deleted':
                     handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'modified':
-                    handle_event(event.event_type, file_type, event_sock, event)
             else:
                 file_type = "file"
                 if event.event_type == 'created':
