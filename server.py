@@ -105,6 +105,8 @@ def event(sock):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(os.path.join(os.getcwd(), path))
+    if event_type == "modified":
+        new_client(sock)
     # if event_type == "moved":
     # if file_type == "folder":
     #    new_client(sock)
