@@ -3,6 +3,7 @@ import random
 import string
 import os
 import sys
+from utils import *
 
 
 # input check - raise exception if the program args count isn't 1.
@@ -55,11 +56,7 @@ def new_client(client_sock):
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
-            bytes = bytearray()
-            while len(bytes) < int(file_size):
-                data = client_sock.recv(int(file_size) - len(bytes))
-                bytes.extend(data)
-            f.write(bytes)
+            f.write(recv_file(client_sock, int(file_size)))
             f.close()
         elif file_type == "folder":
             os.makedirs(file_name, exist_ok=True)
@@ -104,7 +101,7 @@ def event(sock):
         else:
             size = int.from_bytes(sock.recv(4), 'big')
             f = open(os.path.join(os.getcwd(), path), "wb")
-            f.write(sock.recv(size))
+            f.write(recv_file(sock, size))
             f.close()
     if event_type == "deleted":
         if file_type == "folder" and os.path.isdir(os.path.join(os.getcwd(), path)):
@@ -120,7 +117,7 @@ def event(sock):
     if event_type == "modified":
         size = int.from_bytes(sock.recv(4), 'big')
         f = open(os.path.join(os.getcwd(), path), "wb")
-        f.write(sock.recv(size))
+        f.write(recv_file(sock, size))
         f.close()
     if event_type == "moved":
         src, dest = str(path).split('>')

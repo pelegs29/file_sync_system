@@ -4,6 +4,7 @@ import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os
+from utils import *
 
 
 # input check - raise exception if the program args count isn't 4 or 5
@@ -73,8 +74,7 @@ def old_client(sock):
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
-            data = sock.recv(int(file_size))
-            f.write(data)
+            f.write(recv_file(sock, int(file_size)))
             f.close()
         elif file_type == "folder":
             os.makedirs(file_name, exist_ok=True)
@@ -95,7 +95,7 @@ def update(sock):
             else:
                 size = int.from_bytes(sock.recv(4), 'big')
                 f = open(os.path.join(folder_path, path), "wb")
-                f.write(sock.recv(size))
+                f.write(recv_file(sock, size))
                 f.close()
         elif event_type == "deleted":
             if file_type == "folder":
@@ -113,7 +113,7 @@ def update(sock):
             if file_type == "file":
                 size = int.from_bytes(sock.recv(4), 'big')
                 f = open(os.path.join(folder_path, path), "wb")
-                f.write(sock.recv(size))
+                f.write(recv_file(sock, size))
                 f.close()
         else:
             src, dest = str(path).split('>')
