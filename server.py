@@ -129,11 +129,11 @@ def event(sock):
                 os.makedirs(os.path.join(os.getcwd(), dest))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
                     for name in files:
-                        name = open(os.path.join(dest_path, name), "rb")
-                        f = open(os.path.join(os.getcwd(), dest), "wb")
-                        f.write(name.read())
+                        src_path = open(os.path.join(root, name), "rb")
+                        f = open(os.path.join(os.getcwd(), dest, name), "wb")
+                        f.write(src_path.read())
                         f.close()
-                        name.close()
+                        src_path.close()
                     for name in dirs:
                         os.makedirs(os.path.join(root, name))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
