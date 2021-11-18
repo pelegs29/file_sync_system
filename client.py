@@ -94,38 +94,54 @@ def update(sock):
                 os.makedirs(os.path.join(folder_path, path))
             else:
                 size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(os.getcwd(), path), "wb")
+                f = open(os.path.join(folder_path, path), "wb")
                 f.write(sock.recv(size))
                 f.close()
         elif event_type == "deleted":
             if file_type == "folder":
                 if os.path.isdir(os.path.join(folder_path, path)):
-                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
+                    for root, dirs, files in os.walk(os.path.join(folder_path, path), topdown=False):
                         for name in files:
                             os.remove(os.path.join(root, name))
                         for name in dirs:
                             os.rmdir(os.path.join(root, name))
-                    os.rmdir(os.path.join(os.getcwd(), path))
+                    os.rmdir(os.path.join(folder_path, path))
             else:
                 if os.path.isfile(os.path.join(folder_path, path)):
                     os.remove(os.path.join(folder_path, path))
         elif event_type == "modified":
             if file_type == "file":
                 size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(os.getcwd(), path), "wb")
+                f = open(os.path.join(folder_path, path), "wb")
                 f.write(sock.recv(size))
                 f.close()
         else:
             src, dest = str(path).split('>')
-            if file_type == "folder":
-                if os.path.isdir(os.path.join(folder_path, path)):
+            if os.path.exists(os.path.join(folder_path, src)):
+                if file_type == "folder":
+                    os.makedirs(os.path.join(folder_path, dest))
+                    for root, dirs, files in os.walk(os.path.join(folder_path, src)):
+                        for name in files:
+                            name = open(os.path.join(root, name), "rb")
+                            f = open(os.path.join(folder_path, dest), "wb")
+                            f.write(name.read())
+                            f.close()
+                            name.close()
+                        for name in dirs:
+                            os.makedirs(os.path.join(root, name))
+                    for root, dirs, files in os.walk(os.path.join(folder_path, src), topdown=False):
+                        for name in files:
+                            os.remove(os.path.join(root, name))
+                        for name in dirs:
+                            os.rmdir(os.path.join(root, name))
                     os.rmdir(os.path.join(folder_path, src))
-                os.makedirs(os.path.join(folder_path, dest))
-            else:
-                f = open(os.path.join(folder_path, src), "wb")
-                f.write(os.path.join(folder_path, dest).encode())
-                f.close()
-                os.remove(os.path.join(folder_path, src))
+                else:
+                    src_file = open(os.path.join(folder_path, src), "rb")
+                    dest_file = open(os.path.join(folder_path, dest), "wb")
+                    dest_file.write(src_file.read())
+                    src_file.close()
+                    dest_file.close()
+                    os.remove(os.path.join(folder_path, src))
 
 
 # running input checks
