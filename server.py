@@ -55,8 +55,11 @@ def new_client(client_sock):
         file_type, file_name, file_size = data.split(',')
         if file_type == "file":
             f = open(file_name, "wb")
-            data = client_sock.recv(int(file_size))
-            f.write(data)
+            bytes = bytearray()
+            while len(bytes) < int(file_size):
+                data = client_sock.recv(int(file_size) - len(bytes))
+                bytes.extend(data)
+            f.write(bytes)
             f.close()
         elif file_type == "folder":
             os.makedirs(file_name, exist_ok=True)
