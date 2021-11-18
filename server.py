@@ -127,7 +127,7 @@ def event(sock):
                 dest_path = os.path.join(os.getcwd(), dest)
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
                     for name in files:
-                        name = open(os.path.join(root, name), "rb")
+                        name = open(os.path.join(dest_path, name), "rb")
                         f = open(os.path.join(os.getcwd(), dest), "wb")
                         f.write(name.read())
                         f.close()
