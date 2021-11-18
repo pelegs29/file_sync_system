@@ -122,9 +122,11 @@ def event(sock):
     if event_type == "moved":
         src, dest = str(path).split('>')
         if os.path.exists(os.path.join(os.getcwd(), src)):
+            if os.path.dirname(src) == os.path.dirname(dest):
+                os.renames(src, dest)
+                return
             if file_type == "folder":
                 os.makedirs(os.path.join(os.getcwd(), dest))
-                dest_path = os.path.join(os.getcwd(), dest)
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
                     for name in files:
                         name = open(os.path.join(dest_path, name), "rb")
@@ -133,8 +135,7 @@ def event(sock):
                         f.close()
                         name.close()
                     for name in dirs:
-                        dest_path = os.path.join(dest_path, name)
-                        os.makedirs(dest_path)
+                        os.makedirs(os.path.join(root, name))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
                     for name in files:
                         os.remove(os.path.join(root, name))
