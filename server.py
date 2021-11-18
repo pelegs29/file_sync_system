@@ -6,6 +6,13 @@ import sys
 from utils import *
 
 
+# TODO: 1) check updating is working from server side
+#      2) changing port every new socket
+#      3) windows <-> linux
+#      4) server needs tp print client id
+#      5) check existing client behavior
+
+
 # input check - raise exception if the program args count isn't 1.
 def args_num_check():
     if len(sys.argv) != 2:
