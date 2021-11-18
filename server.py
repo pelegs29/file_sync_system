@@ -122,6 +122,9 @@ def event(sock):
     if event_type == "moved":
         src, dest = str(path).split('>')
         if os.path.exists(os.path.join(os.getcwd(), src)):
+            if os.path.dirname(src) == os.path.dirname(dest):
+                os.renames(src, dest)
+                return
             if file_type == "folder":
                 os.makedirs(os.path.join(os.getcwd(), dest))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
