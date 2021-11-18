@@ -124,17 +124,15 @@ def event(sock):
         if os.path.exists(os.path.join(os.getcwd(), src)):
             if file_type == "folder":
                 os.makedirs(os.path.join(os.getcwd(), dest))
-                dest_path = os.path.join(os.getcwd(), dest)
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
                     for name in files:
-                        name = open(os.path.join(dest_path, name), "rb")
+                        name = open(os.path.join(root, name), "rb")
                         f = open(os.path.join(os.getcwd(), dest), "wb")
                         f.write(name.read())
                         f.close()
                         name.close()
                     for name in dirs:
-                        dest_path = os.path.join(dest_path, name)
-                        os.makedirs(dest_path)
+                        os.makedirs(os.path.join(root, name))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
                     for name in files:
                         os.remove(os.path.join(root, name))
