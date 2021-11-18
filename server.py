@@ -132,7 +132,7 @@ def event(sock):
                         f.close()
                         name.close()
                     for name in dirs:
-                        os.makedirs(os.path.join(root, name))
+                        os.mkdir(os.path.join(root, name))
                 for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
                     for name in files:
                         os.remove(os.path.join(root, name))
