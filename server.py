@@ -9,7 +9,6 @@ from utils import *
 # TODO: 1) check updating is working from server side
 #       2) changing port every new socket
 #       3) windows <-> linux
-#       4) server needs tp print client id
 #       5) check existing client behavior
 #       6) fix double os.path.join
 
@@ -204,6 +203,7 @@ while True:
     # save his data in the server.
     else:
         user_id = generate_user_identifier()
+        print(user_id)
         os.makedirs(user_id)
         os.chdir(os.path.join(current_dir, user_id))
         counter_map[user_id] = 1
