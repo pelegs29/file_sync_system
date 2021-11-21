@@ -178,7 +178,8 @@ while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
     protocol_size = int.from_bytes(client_socket.recv(4), 'big')
-    client_id, pc_id, operation = client_socket.recv(protocol_size).decode("UTF-8", 'strict').split(',')
+    data = client_socket.recv(protocol_size).decode("UTF-8", 'strict')
+    client_id, pc_id, operation = data.split(',')
     pc_id = int(pc_id)
     folders_list = list_dirs(os.getcwd())
     # check if the id given has been registered before
