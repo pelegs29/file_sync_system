@@ -252,7 +252,9 @@ class Handler(FileSystemEventHandler):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
-s.send((user_identifier + "," + str(pc_id) + ",0").encode())
+protocol = user_identifier + "," + str(pc_id) + ",0"
+s.send(len(protocol).to_bytes(4, 'big'))
+s.send(protocol.encode())
 
 # In case we are new client.
 # TODO deal with folder names of ","
