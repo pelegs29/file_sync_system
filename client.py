@@ -165,7 +165,6 @@ port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
 dog_flag = False
-pc_id = 999
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
@@ -257,7 +256,7 @@ class Handler(FileSystemEventHandler):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
-protocol = user_identifier + "," + str(pc_id) + ",0"
+protocol = user_identifier + "," + "999" + ",0"
 protocol_sender(s, protocol)
 # In case we are new client.
 # TODO deal with folder names of ","
