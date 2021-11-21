@@ -160,7 +160,7 @@ current_dir = os.getcwd()
 user_id = ""
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
-server.listen(5)
+server.listen(50)
 
 # 0 - first connection
 # 1 - get update from server
