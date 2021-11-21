@@ -28,8 +28,6 @@ def port_check(port_input):
 
 # If we got user_identifier as parameter, it means we are old clients and
 # we should pull from the server the folder.
-# we also use this method every time the "time_to_reach" passes, because we want to get
-# the most updated version of the folder.
 def existing_client(client_sock, fold_path):
     for path, dirs, files in os.walk(fold_path):
         for file in files:
@@ -57,7 +55,6 @@ def existing_client(client_sock, fold_path):
 # If we didn't get user_identifier as parameter, it means we are new clients and
 # we should push the folder to the server.
 def new_client(client_sock):
-    # TODO test large files.
     while True:
         data_size = int.from_bytes(client_sock.recv(4), 'big')
         data = client_sock.recv(data_size).decode("UTF-8", 'strict')
@@ -72,11 +69,14 @@ def new_client(client_sock):
             break
 
 
+# method to update the client of changes that has been made by other computers
+# this method also handle the case when the server needs to send a file to the client
 def update_client(update_list):
     for s in update_list:
         client_socket.send(len(s).to_bytes(4, 'big'))
         client_socket.send(s.encode())
         event_type, file_type, path = s.split(',')
+        # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
             client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
             f = open(os.path.join(os.getcwd(), path), "rb")
@@ -113,12 +113,7 @@ def event(sock):
             f.close()
     if event_type == "deleted":
         if file_type == "folder" and os.path.isdir(os.path.join(os.getcwd(), path)):
-            for root, dirs, files in os.walk(os.path.join(os.getcwd(), path), topdown=False):
-                for name in files:
-                    os.remove(os.path.join(root, name))
-                for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(os.path.join(os.getcwd(), path))
+            rec_folder_delete(os.getcwd(), path)
         else:
             if os.path.isfile(os.path.join(os.getcwd(), path)):
                 os.remove(os.path.join(os.getcwd(), path))
@@ -146,12 +141,7 @@ def event(sock):
                     for name in dirs:
                         dest_path = os.path.join(dest_path, name)
                         os.makedirs(dest_path)
-                for root, dirs, files in os.walk(os.path.join(os.getcwd(), src), topdown=False):
-                    for name in files:
-                        os.remove(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
-                os.rmdir(os.path.join(os.getcwd(), src))
+                rec_folder_delete(os.getcwd(), path)
             else:
                 src_file = open(os.path.join(os.getcwd(), src), "rb")
                 dest_file = open(os.path.join(os.getcwd(), dest), "wb")
@@ -176,12 +166,22 @@ server.listen(5)
 # 1 - get update from server
 # 2- event
 
+
+# this is the main loop of the server
+# each iteration: 1) the current dir is resetting to the main folder of the server
+#                 2) the server accepts a client with his ID, and operation number
+#                 3) operate accordingly to the given ID ( new / old / old with new connection )
+#                   3.1) new client -> create query in the change_map, and create changes list,
+#                                      then push client's folder to the server.
+#                   3.2) old client -> TODO : Continue
 while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
     client_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
     folders_list = list_dirs(os.getcwd())
+    # check if the id given has been registered before
     if client_id in folders_list:
+        # check if this connection is from a new computer
         if client_address not in changes_map.get(user_id).keys():
             (changes_map[user_id])[client_address] = []
         os.chdir(os.path.join(current_dir, user_id))
@@ -195,6 +195,8 @@ while True:
                 update_client(changes_map.get(user_id).get(client_address))
         else:
             existing_client(client_socket, os.getcwd())
+    # if this is a new client -> set up a new query in the change_map and
+    # save his data in the server.
     else:
         user_id = generate_user_identifier()
         os.makedirs(user_id)
