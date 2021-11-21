@@ -150,6 +150,7 @@ port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
 dog_flag = False
+pc_id = 999
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
@@ -175,7 +176,7 @@ class Watcher:
                 dog_flag = True
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
-                sock.send((user_identifier + ",1").encode())
+                sock.send((user_identifier + "," + str(pc_id) + ",1").encode())
                 check = sock.recv(1).decode("UTF-8", 'strict')
                 if check == "1":
                     update(sock)
@@ -217,7 +218,7 @@ class Handler(FileSystemEventHandler):
         if not dog_flag:
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
-            event_sock.send((user_identifier + ",2").encode())
+            event_sock.send((user_identifier + "," + str(pc_id) + ",2").encode())
             if event.is_directory:
                 file_type = "folder"
                 if event.event_type == 'created':
@@ -241,12 +242,13 @@ class Handler(FileSystemEventHandler):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
-s.send((user_identifier + ",0").encode())
+s.send((user_identifier + "," + str(pc_id) + ",0").encode())
 
 # In case we are new client.
 # TODO deal with folder names of ","
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
+    pc_id = int.from_bytes(s.recv(4), 'big')
     new_client(s, folder_path)
 else:
     old_client(s)
