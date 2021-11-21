@@ -100,12 +100,7 @@ def update(sock):
         elif event_type == "deleted":
             if file_type == "folder":
                 if os.path.isdir(os.path.join(folder_path, path)):
-                    for root, dirs, files in os.walk(os.path.join(folder_path, path), topdown=False):
-                        for name in files:
-                            os.remove(os.path.join(root, name))
-                        for name in dirs:
-                            os.rmdir(os.path.join(root, name))
-                    os.rmdir(os.path.join(folder_path, path))
+                    rec_folder_delete(folder_path, path)
             else:
                 if os.path.isfile(os.path.join(folder_path, path)):
                     os.remove(os.path.join(folder_path, path))
@@ -129,12 +124,7 @@ def update(sock):
                             name.close()
                         for name in dirs:
                             os.makedirs(os.path.join(root, name))
-                    for root, dirs, files in os.walk(os.path.join(folder_path, src), topdown=False):
-                        for name in files:
-                            os.remove(os.path.join(root, name))
-                        for name in dirs:
-                            os.rmdir(os.path.join(root, name))
-                    os.rmdir(os.path.join(folder_path, src))
+                    rec_folder_delete(folder_path, src)
                 else:
                     src_file = open(os.path.join(folder_path, src), "rb")
                     dest_file = open(os.path.join(folder_path, dest), "wb")
