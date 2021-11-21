@@ -63,6 +63,11 @@ def new_client(sock, fol_path):
     sock.send("0,0,0".encode())
 
 
+def protocol_sender(sock, pro_string):
+    sock.send(len(pro_string).to_bytes(4, 'big'))
+    sock.send(pro_string.encode())
+
+
 # TODO change name of function
 def old_client(sock):
     if os.getcwd() != folder_path:
@@ -186,7 +191,7 @@ class Watcher:
                 dog_flag = True
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
-                sock.send((user_identifier + "," + str(pc_id) + ",1").encode())
+                protocol_sender(sock, user_identifier + "," + str(pc_id) + ",1")
                 check = sock.recv(1).decode("UTF-8", 'strict')
                 if check == "1":
                     update(sock)
@@ -228,7 +233,7 @@ class Handler(FileSystemEventHandler):
         if not dog_flag:
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
-            event_sock.send((user_identifier + "," + str(pc_id) + ",2").encode())
+            protocol_sender(event_sock, user_identifier + "," + str(pc_id) + ",2")
             if event.is_directory:
                 file_type = "folder"
                 if event.event_type == 'created':
@@ -253,9 +258,7 @@ class Handler(FileSystemEventHandler):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 protocol = user_identifier + "," + str(pc_id) + ",0"
-s.send(len(protocol).to_bytes(4, 'big'))
-s.send(protocol.encode())
-
+protocol_sender(s, protocol)
 # In case we are new client.
 # TODO deal with folder names of ","
 if user_identifier == "NEW":
