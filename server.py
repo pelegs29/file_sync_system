@@ -100,8 +100,8 @@ def event(sock):
     data = sock.recv(event_size).decode("UTF-8", 'strict')
     event_type, file_type, path = data.split(',')
     if event_type != "modified" and file_type != "folder":
-        for client_add, change_list in changes_map[user_id].items():
-            if client_add != client_address:
+        for comp_id, change_list in changes_map[user_id].items():
+            if comp_id != pc_id:
                 change_list.append(data)
     if event_type == "created":
         if file_type == "folder":
@@ -156,6 +156,7 @@ args_num_check()
 port_check(sys.argv[1])
 port = int(sys.argv[1])
 changes_map = dict()
+counter_map = dict()
 current_dir = os.getcwd()
 user_id = ""
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -177,22 +178,24 @@ server.listen(5)
 while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
-    client_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
+    client_id, pc_id, operation = client_socket.recv(130).decode("UTF-8", 'strict').split(',')
     folders_list = list_dirs(os.getcwd())
     # check if the id given has been registered before
     if client_id in folders_list:
         # check if this connection is from a new computer
-        if client_address not in changes_map.get(user_id).keys():
-            (changes_map[user_id])[client_address] = []
+        if pc_id not in changes_map.get(user_id).keys():
+            counter_map[user_id] += 1
+            pc_id = counter_map.get(user_id)
+            (changes_map[user_id])[pc_id] = []
         os.chdir(os.path.join(current_dir, user_id))
         if operation == "2":
             event(client_socket)
         elif operation == "1":
-            if len(changes_map.get(user_id).get(client_address)) == 0:
+            if len(changes_map.get(user_id).get(pc_id)) == 0:
                 client_socket.send("0".encode())
             else:
                 client_socket.send("1".encode())
-                update_client(changes_map.get(user_id).get(client_address))
+                update_client(changes_map.get(user_id).get(pc_id))
         else:
             existing_client(client_socket, os.getcwd())
     # if this is a new client -> set up a new query in the change_map and
@@ -201,8 +204,11 @@ while True:
         user_id = generate_user_identifier()
         os.makedirs(user_id)
         os.chdir(os.path.join(current_dir, user_id))
+        counter_map[user_id] = 1
         changes_map[user_id] = dict()
-        (changes_map[user_id])[client_address] = []
+        pc_id = counter_map.get(user_id)
+        (changes_map[user_id])[pc_id] = []
         client_socket.send(user_id.encode())
+        client_socket.send(pc_id.to_bytes(4, 'big'))
         new_client(client_socket)
     client_socket.close()
