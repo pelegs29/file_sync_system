@@ -42,7 +42,7 @@ def existing_client(client_sock, fold_path):
             client_socket.send(f.read())
         for folder in dirs:
             fol_path = os.path.join(path, folder)
-            folder_name = os.path.relpath(fol_path, path)
+            folder_name = os.path.relpath(fol_path, os.getcwd())
             folder_size = str(0)
             protocol = "folder," + folder_name + "," + folder_size
             protocol_size = len(protocol).to_bytes(4, 'big')
