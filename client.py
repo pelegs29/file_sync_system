@@ -248,6 +248,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 protocol = user_identifier + "," + "999" + ",0"
 protocol_sender(s, protocol)
+
 # In case we are new client.
 # TODO deal with folder names of ","
 if user_identifier == "NEW":
