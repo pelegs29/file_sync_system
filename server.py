@@ -80,7 +80,7 @@ def update_client():
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
             f.close()
-        list(changes_map.get(user_id).get(pc_id)).remove(s)
+    changes_map.get(user_id)[pc_id] = []
     protocol_sender(client_socket, "0,0,0")
 
 
