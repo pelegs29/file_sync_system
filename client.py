@@ -212,6 +212,12 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
             return None
+        if ".goutputstream" in event.src_path:
+            if event.event_type == "created" or "modified":
+                return None
+            else:
+                event.event_type = "modified"
+                event.src_path = event.dest_path
         file_type = ""
         # global dog_flag
         if not dog_flag:
