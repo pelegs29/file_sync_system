@@ -188,20 +188,20 @@ class Watcher:
 
 
 def handle_event(event_type, file_type, sock, event):
+    if ".goutputstream" in event.src_path:
+        src_path = event.dest_path
+    else:
+        src_path = event.src_path
     if event_type == "moved":
         rel_src_path = os.path.relpath(event.src_path, folder_path)
         rel_dest_path = os.path.relpath(event.dest_path, folder_path)
         rel_path = rel_src_path + ">" + rel_dest_path
     else:
-        rel_path = os.path.relpath(event.src_path, folder_path)
+        rel_path = os.path.relpath(src_path, folder_path)
     event_desc = event_type + "," + file_type + "," + rel_path
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
     if (event.event_type == "created" or "modified") and file_type == "file":
-        if ".goutputstream" in event.src_path:
-            src_path = event.dest_path
-        else:
-            src_path = event.src_path
         if os.path.isfile(src_path):
             sock.send(os.path.getsize(src_path).to_bytes(4, 'big'))
             f = open(src_path, "rb")
