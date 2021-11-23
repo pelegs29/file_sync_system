@@ -199,8 +199,7 @@ def handle_event(event_type, file_type, sock, event):
     else:
         rel_path = os.path.relpath(src_path, folder_path)
     event_desc = event_type + "," + file_type + "," + rel_path
-    sock.send(len(event_desc).to_bytes(4, 'big'))
-    sock.send(event_desc.encode())
+    protocol_sender(sock, event_desc)
     if (event.event_type == "created" or "modified") and file_type == "file":
         if os.path.isfile(src_path):
             sock.send(os.path.getsize(src_path).to_bytes(4, 'big'))
