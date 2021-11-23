@@ -6,11 +6,7 @@ import sys
 from utils import *
 
 
-# TODO: 1) check updating is working from server side
-#       2) changing port every new socket
-#       3) windows <-> linux
-#       5) check existing client behavior
-#       6) fix double os.path.join
+# TODO: 3) windows <-> linux
 
 
 # input check - raise exception if the program args count isn't 1.
