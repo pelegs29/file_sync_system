@@ -198,7 +198,7 @@ def handle_event(event_type, file_type, sock, event):
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
     if (event.event_type == "created" or "modified") and file_type == "file":
-        if event.event_type == "modified":
+        if ".goutputstream" in event.src_path:
             src_path = event.dest_path
         else:
             src_path = event.src_path
