@@ -99,7 +99,12 @@ def event(sock):
     data = sock.recv(event_size).decode("UTF-8", 'strict')
     event_type, file_type, path = data.split(',')
     if ".goutputstream" in str(path):
-        return
+        if event_type == "created":
+            return
+        else:
+            event_type = "modified"
+            path2, path = path.split('>')
+            data = event_type + "," + file_type + "," + path
     if event_type != "modified" and file_type != "folder":
         for comp_id, change_list in changes_map[user_id].items():
             if comp_id != pc_id:
