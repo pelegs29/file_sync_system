@@ -150,7 +150,6 @@ time_to_reach_check(sys.argv[4])
 ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
-os.makedirs(folder_path)
 time_to_reach = float(sys.argv[4])
 dog_flag = False
 
@@ -262,6 +261,7 @@ if user_identifier == "NEW":
     pc_id = int.from_bytes(s.recv(4), 'big')
     new_client(s, folder_path)
 else:
+    os.makedirs(folder_path)
     pc_id = int.from_bytes(s.recv(4), 'big')
     old_client(s)
 
