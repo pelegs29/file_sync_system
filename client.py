@@ -198,9 +198,13 @@ def handle_event(event_type, file_type, sock, event):
     sock.send(len(event_desc).to_bytes(4, 'big'))
     sock.send(event_desc.encode())
     if (event.event_type == "created" or "modified") and file_type == "file":
-        if os.path.isfile(event.src_path):
-            sock.send(os.path.getsize(event.src_path).to_bytes(4, 'big'))
-            f = open(event.src_path, "rb")
+        if event.event_type == "modified":
+            src_path = event.dest_path
+        else:
+            src_path = event.src_path
+        if os.path.isfile(src_path):
+            sock.send(os.path.getsize(src_path).to_bytes(4, 'big'))
+            f = open(src_path, "rb")
             sock.send(f.read())
             f.close()
     # if event.event_type == "moved" and file_type == "folder":
@@ -217,7 +221,6 @@ class Handler(FileSystemEventHandler):
                 return None
             else:
                 event.event_type = "modified"
-                event.src_path = event.dest_path
         file_type = ""
         # global dog_flag
         if not dog_flag:
