@@ -142,7 +142,7 @@ def event(sock):
                     for name in dirs:
                         dest_path = os.path.join(dest_path, name)
                         os.makedirs(dest_path)
-                rec_folder_delete(os.getcwd(), path)
+                rec_folder_delete(os.getcwd(), src)
             else:
                 src_file = open(os.path.join(os.getcwd(), src), "rb")
                 dest_file = open(os.path.join(os.getcwd(), dest), "wb")
