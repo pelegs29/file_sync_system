@@ -70,8 +70,8 @@ def new_client(client_sock):
 
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
-def update_client(update_list):
-    for s in update_list:
+def update_client():
+    for s in changes_map.get(user_id).get(pc_id):
         client_socket.send(len(s).to_bytes(4, 'big'))
         client_socket.send(s.encode())
         event_type, file_type, path = s.split(',')
@@ -81,6 +81,7 @@ def update_client(update_list):
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
             f.close()
+        list(changes_map.get(user_id).get(pc_id)).remove(s)
     client_socket.send("0,0,0".encode())
 
 
