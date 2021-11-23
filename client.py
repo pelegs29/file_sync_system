@@ -186,9 +186,9 @@ class Watcher:
                     update(sock)
                 sock.close()
                 dog_flag = False
-        except Exception:
+        except Exception as e:
             self.observer.stop()
-            print("error")
+            print(e)
         self.observer.join()
 
 
