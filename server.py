@@ -98,7 +98,9 @@ def event(sock):
     event_size = int.from_bytes(sock.recv(4), 'big')
     data = sock.recv(event_size).decode("UTF-8", 'strict')
     event_type, file_type, path = data.split(',')
-    if event_type != "modified" and file_type != "folder" and ".goutputstream" not in str(path):
+    if ".goutputstream"  in str(path):
+        return
+    if event_type != "modified" and file_type != "folder":
         for comp_id, change_list in changes_map[user_id].items():
             if comp_id != pc_id:
                 change_list.append(data)
