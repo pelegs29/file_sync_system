@@ -99,7 +99,7 @@ def event(sock):
     data = sock.recv(event_size).decode("UTF-8", 'strict')
     event_type, file_type, path = data.split(',')
     if ".goutputstream" in str(path):
-        if event_type == "created":
+        if event_type == "created" or event_type == "modified":
             return
         else:
             event_type = "modified"
