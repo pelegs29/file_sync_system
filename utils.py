@@ -17,3 +17,8 @@ def rec_folder_delete(path, rel_path):
         for name in dirs:
             os.rmdir(os.path.join(root, name))
     os.rmdir(full_path)
+
+
+def protocol_sender(sock, pro_string):
+    sock.send(len(pro_string).to_bytes(4, 'big'))
+    sock.send(pro_string.encode())

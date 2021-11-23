@@ -63,11 +63,6 @@ def new_client(sock, fol_path):
     sock.send("0,0,0".encode())
 
 
-def protocol_sender(sock, pro_string):
-    sock.send(len(pro_string).to_bytes(4, 'big'))
-    sock.send(pro_string.encode())
-
-
 # TODO change name of function
 def old_client(sock):
     if os.getcwd() != folder_path:

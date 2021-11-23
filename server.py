@@ -70,10 +70,9 @@ def new_client(client_sock):
 
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
-def update_client(update_list):
-    for s in update_list:
-        client_socket.send(len(s).to_bytes(4, 'big'))
-        client_socket.send(s.encode())
+def update_client():
+    for s in changes_map.get(user_id).get(pc_id):
+        protocol_sender(client_socket, s)
         event_type, file_type, path = s.split(',')
         # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
@@ -81,7 +80,8 @@ def update_client(update_list):
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
             f.close()
-    client_socket.send("0,0,0".encode())
+        list(changes_map.get(user_id).get(pc_id)).remove(s)
+    protocol_sender(client_socket, "0,0,0")
 
 
 # get all the folder names in certain path.
@@ -198,7 +198,7 @@ while True:
                 client_socket.send("0".encode())
             else:
                 client_socket.send("1".encode())
-                update_client(changes_map.get(user_id).get(pc_id))
+                update_client()
         else:
             existing_client(client_socket, os.getcwd())
     # if this is a new client -> set up a new query in the change_map and
