@@ -76,6 +76,8 @@ def update_client():
         event_type, file_type, path = s.split(',')
         # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
+            if not os.path.exists(os.path.join(os.getcwd(), path)):
+                continue
             client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
