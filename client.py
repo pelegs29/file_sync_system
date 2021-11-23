@@ -213,7 +213,7 @@ class Handler(FileSystemEventHandler):
         if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
             return None
         if ".goutputstream" in event.src_path:
-            if event.event_type == "created" or "modified":
+            if event.event_type == "created" or event.event_type == "modified":
                 return None
             else:
                 event.event_type = "modified"
