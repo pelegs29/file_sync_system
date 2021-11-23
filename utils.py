@@ -10,6 +10,8 @@ def recv_file(sock, file_size):
 
 
 def rec_folder_delete(path, rel_path):
+    path = win_to_lin(path)
+    rel_path = win_to_lin(rel_path)
     full_path = os.path.join(path, rel_path)
     for root, dirs, files in os.walk(full_path, topdown=False):
         for name in files:
@@ -22,3 +24,13 @@ def rec_folder_delete(path, rel_path):
 def protocol_sender(sock, pro_string):
     sock.send(len(pro_string).to_bytes(4, 'big'))
     sock.send(pro_string.encode())
+
+
+def win_to_lin(path):
+    if os.name == 'nt':
+        if '/' in path:
+            return path.replace('/', '\\')
+    else:
+        if '\\' in path:
+            return path.replace('\\', '/')
+    return path

@@ -53,13 +53,14 @@ def new_client(client_sock):
     while True:
         data_size = int.from_bytes(client_sock.recv(4), 'big')
         data = client_sock.recv(data_size).decode("UTF-8", 'strict')
-        file_type, file_name, file_size = data.split(',')
+        file_type, file_rel_path, file_size = data.split(',')
+        file_rel_path = win_to_lin(file_rel_path)
         if file_type == "file":
-            f = open(file_name, "wb")
+            f = open(file_rel_path, "wb")
             f.write(recv_file(client_sock, int(file_size)))
             f.close()
         elif file_type == "folder":
-            os.makedirs(file_name, exist_ok=True)
+            os.makedirs(file_rel_path, exist_ok=True)
         else:
             break
 
@@ -96,6 +97,7 @@ def event(sock):
     event_size = int.from_bytes(sock.recv(4), 'big')
     data = sock.recv(event_size).decode("UTF-8", 'strict')
     event_type, file_type, path = data.split(',')
+    path = win_to_lin(path)
     if event_type == "modified" and file_type == "folder":
         return
     else:
