@@ -256,6 +256,7 @@ if user_identifier == "NEW":
     pc_id = int.from_bytes(s.recv(4), 'big')
     new_client(s, folder_path)
 else:
+    pc_id = int.from_bytes(s.recv(4), 'big')
     old_client(s)
 
 s.close()

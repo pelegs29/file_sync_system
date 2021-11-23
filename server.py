@@ -188,6 +188,7 @@ while True:
         if pc_id not in changes_map.get(user_id).keys():
             counter_map[user_id] += 1
             pc_id = counter_map.get(user_id)
+            client_socket.send(pc_id.to_bytes(4, 'big'))
             (changes_map[user_id])[pc_id] = []
         os.chdir(os.path.join(current_dir, user_id))
         if operation == "2":
