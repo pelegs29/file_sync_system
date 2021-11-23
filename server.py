@@ -72,8 +72,7 @@ def new_client(client_sock):
 # this method also handle the case when the server needs to send a file to the client
 def update_client():
     for s in changes_map.get(user_id).get(pc_id):
-        client_socket.send(len(s).to_bytes(4, 'big'))
-        client_socket.send(s.encode())
+        protocol_sender(client_socket, s)
         event_type, file_type, path = s.split(',')
         # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
@@ -82,7 +81,7 @@ def update_client():
             client_socket.send(f.read())
             f.close()
         list(changes_map.get(user_id).get(pc_id)).remove(s)
-    client_socket.send("0,0,0".encode())
+    protocol_sender(client_socket, "0,0,0")
 
 
 # get all the folder names in certain path.
