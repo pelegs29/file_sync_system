@@ -199,7 +199,7 @@ while True:
                 client_socket.send("0".encode())
             else:
                 client_socket.send("1".encode())
-                update_client(changes_map.get(user_id).get(pc_id))
+                update_client()
         else:
             existing_client(client_socket, os.getcwd())
     # if this is a new client -> set up a new query in the change_map and
