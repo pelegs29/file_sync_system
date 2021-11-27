@@ -26,12 +26,6 @@ def ip_check(ip_input):
             raise Exception("Given ip is not valid")
 
 
-# input check - raise exception if the port given is not a five digits number
-def port_check(port_input):
-    if len(str(port_input)) != 5 or not str(port_input).isnumeric():
-        raise Exception("Given port is not valid")
-
-
 def time_to_reach_check(time_to_connect):
     try:
         float(time_to_connect)
@@ -61,26 +55,6 @@ def new_client(sock, fol_path):
             sock.send(protocol.encode())
     sock.send(len("0,0,0").to_bytes(4, 'big'))
     sock.send("0,0,0".encode())
-
-
-# TODO change name of function
-def old_client(sock):
-    if os.getcwd() != folder_path:
-        os.chdir(folder_path)
-    # TODO test large files.
-    while True:
-        data_size = int.from_bytes(sock.recv(4), 'big')
-        data = sock.recv(data_size).decode("UTF-8", 'strict')
-        file_type, file_rel_path, file_size = data.split(',')
-        file_rel_path = win_to_lin(file_rel_path)
-        if file_type == "file":
-            f = open(file_rel_path, "wb")
-            f.write(recv_file(sock, int(file_size)))
-            f.close()
-        elif file_type == "folder":
-            os.makedirs(file_rel_path, exist_ok=True)
-        else:
-            break
 
 
 def update(sock):
@@ -121,7 +95,7 @@ def update(sock):
                     for root, dirs, files in os.walk(os.path.join(folder_path, src)):
                         for name in files:
                             src_path = open(os.path.join(root, name), "rb")
-                            f = open(os.path.join(dest_path,name), "wb")
+                            f = open(os.path.join(dest_path, name), "wb")
                             f.write(src_path.read())
                             f.close()
                             src_path.close()
@@ -256,8 +230,9 @@ s.connect((ip, port))
 start_protocol = user_identifier + "," + "999" + ",0"
 protocol_sender(s, start_protocol)
 
-# In case we are new client.
-# TODO deal with folder names of ","
+# client initial code before changes monitoring,
+# if no user_ID given as args ->  inform the server and get a new ID, then upload all of the folder to the server
+# else -> this is an existing user, create the folder and download all of the files from the server.
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     pc_id = int.from_bytes(s.recv(4), 'big')
@@ -265,7 +240,9 @@ if user_identifier == "NEW":
 else:
     os.makedirs(folder_path)
     pc_id = int.from_bytes(s.recv(4), 'big')
-    old_client(s)
+    if os.getcwd() != folder_path:
+        os.chdir(folder_path)
+    rec_bulk_recv(s)
 
 s.close()
 w = Watcher()

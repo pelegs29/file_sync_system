@@ -15,12 +15,6 @@ def args_num_check():
         raise Exception("Only 1 argument allowed.")
 
 
-# input check - raise exception if the port given is not a five digits number
-def port_check(port_input):
-    if len(str(port_input)) != 5 or not str(port_input).isnumeric():
-        raise Exception("Given port is not valid")
-
-
 # If we got user_identifier as parameter, it means we are old clients and
 # we should pull from the server the folder.
 def existing_client(client_sock, fold_path):
@@ -50,19 +44,7 @@ def existing_client(client_sock, fold_path):
 # If we didn't get user_identifier as parameter, it means we are new clients and
 # we should push the folder to the server.
 def new_client(client_sock):
-    while True:
-        data_size = int.from_bytes(client_sock.recv(4), 'big')
-        data = client_sock.recv(data_size).decode("UTF-8", 'strict')
-        file_type, file_rel_path, file_size = data.split(',')
-        file_rel_path = win_to_lin(file_rel_path)
-        if file_type == "file":
-            f = open(file_rel_path, "wb")
-            f.write(recv_file(client_sock, int(file_size)))
-            f.close()
-        elif file_type == "folder":
-            os.makedirs(file_rel_path, exist_ok=True)
-        else:
-            break
+    rec_bulk_recv(client_sock)
 
 
 # method to update the client of changes that has been made by other computers
@@ -172,12 +154,18 @@ server.listen(50)
 
 
 # this is the main loop of the server
-# each iteration: 1) the current dir is resetting to the main folder of the server
-#                 2) the server accepts a client with his ID, and operation number
-#                 3) operate accordingly to the given ID ( new / old / old with new connection )
-#                   3.1) new client -> create query in the change_map, and create changes list,
+# each iteration: 1) reset the current dir to the main folder of the server
+#                 2) the server accepts a client and receive a protocol from the client
+#                 3) analyze the protocol and update the client id, pc id, and given operation
+#                 4) operate accordingly to the given client ID ( new / old / old with new PC )
+#                   4.1) new client -> create query in the change_map, and create changes list,
 #                                      then push client's folder to the server.
-#                   3.2) old client -> TODO : Continue
+#                   4.2) old client -> check if the client logged in from a new PC
+#                       4.2.1) new PC -> increment counter_map of client ID,
+#                                           and add query for the new PC in the changes_map
+#                   4.3) set current dir to the client ID dir
+#                   4.4) operate accordingly to the given operation ID ( 0 / 1 / 2 )
+#                       4.4.1) operation ID == 0 ->
 while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
@@ -205,18 +193,25 @@ while True:
                 update_client()
         else:
             existing_client(client_socket, os.getcwd())
+
     # if this is a new client -> set up a new query in the change_map and
     # save his data in the server.
     else:
+        # generate and send newly created ID to the client.
         user_id = generate_user_identifier()
         print(user_id)
         os.makedirs(user_id)
         os.chdir(os.path.join(current_dir, user_id))
+        client_socket.send(user_id.encode())
+        client_socket.send(pc_id.to_bytes(4, 'big'))
+
+        # setup new query to the user id and the pc id
         counter_map[user_id] = 1
         changes_map[user_id] = dict()
         pc_id = counter_map.get(user_id)
         (changes_map[user_id])[pc_id] = []
-        client_socket.send(user_id.encode())
-        client_socket.send(pc_id.to_bytes(4, 'big'))
-        new_client(client_socket)
+
+        # get all files from the client
+        rec_bulk_recv(client_socket)
+
     client_socket.close()
