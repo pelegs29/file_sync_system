@@ -160,12 +160,12 @@ server.listen(50)
 #                 4) operate accordingly to the given client ID ( new / old / old with new PC )
 #                   4.1) new client -> create query in the change_map, and create changes list,
 #                                      then push client's folder to the server.
-#                   4.2) old client -> check if the client logged in from a new PC
-#                       4.2.1) new PC -> increment counter_map of client ID,
-#                                           and add query for the new PC in the changes_map
-#                   4.3) set current dir to the client ID dir
-#                   4.4) operate accordingly to the given operation ID ( 0 / 1 / 2 )
-#                       4.4.1) operation ID == 0 ->
+#                   4.2) old client -> preforms this actions :
+#                       4.2.1) if client logged from new PC -> increment counter_map of client ID,
+#                                                              and add query for the new PC in the changes_map
+#                       4.2.2) set current dir to the client ID dir
+#                       4.2.3) operate accordingly to the given operation ID ( 0 / 1 / 2 )
+#                           4.2.3.1) operation ID == 0 -> this is
 while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
