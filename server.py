@@ -56,7 +56,8 @@ def event(sock):
                 change_list.append(data)
     if event_type == "created":
         if file_type == "folder":
-            os.makedirs(os.path.join(os.getcwd(), path))
+            if not os.path.exists(os.path.join(os.getcwd(), path)):
+                os.makedirs(os.path.join(os.getcwd(), path))
         else:
             size = int.from_bytes(sock.recv(4), 'big')
             f = open(os.path.join(os.getcwd(), path), "wb")

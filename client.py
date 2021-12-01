@@ -69,7 +69,8 @@ def update(sock):
         path = win_to_lin(path)
         if event_type == "created":
             if file_type == "folder":
-                os.makedirs(os.path.join(folder_path, path))
+                if not os.path.exists(os.path.join(folder_path, path)):
+                    os.makedirs(os.path.join(folder_path, path))
             else:
                 size = int.from_bytes(sock.recv(4), 'big')
                 f = open(os.path.join(folder_path, path), "wb")
