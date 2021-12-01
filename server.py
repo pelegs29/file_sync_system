@@ -52,6 +52,10 @@ def event(sock):
     if event_type == "modified" and file_type == "folder":
         return
     else:
+        if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
+            return
+        if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
+            return
         for comp_id, change_list in changes_map[user_id].items():
             if comp_id != pc_id:
                 change_list.append(data)
