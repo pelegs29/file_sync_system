@@ -189,5 +189,4 @@ while True:
 
         # get all files from the client
         rec_bulk_recv(client_socket)
-
     client_socket.close()
