@@ -66,6 +66,7 @@ def update(sock):
         if data == "0,0,0":
             break
         ignored_events.append(data)
+        print(data)
         event_type, file_type, path = data.split(',')
         path = win_to_lin(path)
         if event_type == "created":
