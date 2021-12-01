@@ -18,6 +18,7 @@ def update_client():
     for s in changes_map.get(user_id).get(pc_id):
         protocol_sender(client_socket, s)
         event_type, file_type, path = s.split(',')
+        win_to_lin(path)
         # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
             if not os.path.exists(os.path.join(os.getcwd(), path)):
