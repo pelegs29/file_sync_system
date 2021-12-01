@@ -33,24 +33,6 @@ def time_to_reach_check(time_to_connect):
         raise Exception("Given time to reach is not valid")
 
 
-def new_client(sock, fol_path):
-    for path, dirs, files in os.walk(fol_path):
-        for file in files:
-            file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, fol_path)
-            file_size = str(os.path.getsize(file_path))
-            protocol = "file," + file_name + "," + file_size
-            protocol_sender(sock, protocol)
-            f = open(file_path, "rb")
-            sock.send(f.read())
-        for folder in dirs:
-            fold_path = os.path.join(path, folder)
-            folder_name = os.path.relpath(fold_path, folder_path)
-            folder_size = str(0)
-            protocol = "folder," + folder_name + "," + folder_size
-            protocol_sender(sock, protocol)
-    protocol_sender(sock, "0,0,0")
-
 
 def update(sock):
     while True:
@@ -231,7 +213,7 @@ protocol_sender(s, start_protocol)
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     pc_id = int.from_bytes(s.recv(4), 'big')
-    new_client(s, folder_path)
+    rec_bulk_send(s, folder_path)
 else:
     os.makedirs(folder_path)
     pc_id = int.from_bytes(s.recv(4), 'big')

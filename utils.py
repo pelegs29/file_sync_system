@@ -64,3 +64,24 @@ def rec_bulk_recv(sock):
             os.makedirs(file_rel_path, exist_ok=True)
         else:
             break
+
+
+# this method handles the case when we accept an existing user,
+# by sending all of the files to the client recursively.
+def rec_bulk_send(sock, fold_path):
+    for path, dirs, files in os.walk(fold_path):
+        for file in files:
+            file_path = os.path.join(path, file)
+            file_name = os.path.relpath(file_path, fold_path)
+            file_size = str(os.path.getsize(file_path))
+            protocol = "file," + file_name + "," + file_size
+            protocol_sender(sock, protocol)
+            f = open(file_path, "rb")
+            sock.send(f.read())
+        for folder in dirs:
+            fol_path = os.path.join(path, folder)
+            folder_name = os.path.relpath(fol_path, fold_path)
+            folder_size = str(0)
+            protocol = "folder," + folder_name + "," + folder_size
+            protocol_sender(sock, protocol)
+    protocol_sender(sock, "0,0,0")

@@ -12,26 +12,6 @@ def args_num_check():
         raise Exception("Only 1 argument allowed.")
 
 
-# this method handles the case when we accept an existing user,
-# by sending all of the files to the client recursively.
-def existing_client(client_sock, fold_path):
-    for path, dirs, files in os.walk(fold_path):
-        for file in files:
-            file_path = os.path.join(path, file)
-            file_name = os.path.relpath(file_path, os.getcwd())
-            file_size = str(os.path.getsize(file_path))
-            protocol = "file," + file_name + "," + file_size
-            protocol_sender(client_sock, protocol)
-            f = open(file_path, "rb")
-            client_socket.send(f.read())
-        for folder in dirs:
-            fol_path = os.path.join(path, folder)
-            folder_name = os.path.relpath(fol_path, os.getcwd())
-            folder_size = str(0)
-            protocol = "folder," + folder_name + "," + folder_size
-            protocol_sender(client_sock, protocol)
-    protocol_sender(client_sock, "0,0,0")
-
 
 # If we didn't get user_identifier as parameter, it means we are new clients and
 # we should push the folder to the server.
@@ -192,7 +172,7 @@ while True:
                 update_client()
         # this is the first connection of an existing client.
         else:
-            existing_client(client_socket, os.getcwd())
+            rec_bulk_send(client_socket, os.getcwd())
 
     # if this is a new client -> set up a new query in the change_map and
     # save his data in the server.
