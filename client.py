@@ -13,6 +13,31 @@ def args_num_check():
         raise Exception("Only 4 or 5 arguments allowed.")
 
 
+def compare_event(event, event_str):
+    event_type, file_type, path = event_str.split(',')
+    rel_src_path = os.path.relpath(event.src_path, folder_path)
+    if event_type != event.event_type:
+        return False
+    if file_type == "folder" and not event.is_directory:
+        return False
+    if event_type == "moved":
+        rel_dest_path = os.path.relpath(event.dest_path, folder_path)
+        src, dest = path.split('>')
+        if src != rel_src_path or dest != rel_dest_path:
+            return False
+    else:
+        if path != rel_src_path:
+            return False
+    return True
+
+
+def event_exist(event):
+    for e in ignored_events:
+        if compare_event(event, e):
+            return True
+    return False
+
+
 # input check - raise exception if one of the condition is met :
 # -> there are less or more than 4 dots in the ip address
 # -> there is a section in the ip that not contains only numbers
@@ -33,13 +58,13 @@ def time_to_reach_check(time_to_connect):
         raise Exception("Given time to reach is not valid")
 
 
-
 def update(sock):
     while True:
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
             break
+        ignored_events.append(data)
         event_type, file_type, path = data.split(',')
         path = win_to_lin(path)
         if event_type == "created":
@@ -105,6 +130,7 @@ port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
 dog_flag = False
+ignored_events = []
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
@@ -175,9 +201,7 @@ class Handler(FileSystemEventHandler):
                 return None
             else:
                 event.event_type = "modified"
-        file_type = ""
-        # global dog_flag
-        if not dog_flag:
+        if not event_exist(event):
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
             protocol_sender(event_sock, user_identifier + "," + str(pc_id) + ",2")
