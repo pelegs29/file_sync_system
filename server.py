@@ -48,7 +48,7 @@ def event(sock):
     path = win_to_lin(path)
     if file_type == "file" and os.path.isdir(os.path.join(os.getcwd(), path)):
         file_type = "folder"
-        data.replace("file", "folder")
+        data = data.replace("file", "folder")
     if event_type == "modified" and file_type == "folder":
         return
     else:
