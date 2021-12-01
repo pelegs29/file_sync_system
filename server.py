@@ -12,13 +12,6 @@ def args_num_check():
         raise Exception("Only 1 argument allowed.")
 
 
-
-# If we didn't get user_identifier as parameter, it means we are new clients and
-# we should push the folder to the server.
-def new_client(client_sock):
-    rec_bulk_recv(client_sock)
-
-
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
 def update_client():
