@@ -176,7 +176,7 @@ while True:
         os.makedirs(user_id)
         os.chdir(os.path.join(current_dir, user_id))
         client_socket.send(user_id.encode())
-        client_socket.send(pc_id.to_bytes(4, 'big'))
+        client_socket.send(int(1).to_bytes(4, 'big'))
 
         # setup new query to the user id and the pc id
         counter_map[user_id] = 1
