@@ -34,6 +34,7 @@ def compare_event(event, event_str):
 def event_exist(event):
     for e in ignored_events:
         if compare_event(event, e):
+            ignored_events.remove(e)
             return True
     return False
 
