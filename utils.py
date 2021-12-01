@@ -1,12 +1,33 @@
 import os
 
 
+# this method will get path and manipulate it according to the current os the program runs on.
+def win_to_lin(path):
+    if os.name == 'nt':
+        if '/' in path:
+            return path.replace('/', '\\')
+    else:
+        if '\\' in path:
+            return path.replace('\\', '/')
+    return path
+
+
 # input check - raise exception if the port given is not a five digits number
 def port_check(port_input):
     if len(str(port_input)) != 5 or not str(port_input).isnumeric():
         raise Exception("Given port is not valid")
 
 
+# this method will get string and socket as args and make sure that the receiver will know exactly
+# the amount of bytes required to read the message that about to be sent,
+# by sending first the string length in bytes, then the encoded string itself.
+def protocol_sender(sock, pro_string):
+    sock.send(len(pro_string).to_bytes(4, 'big'))
+    sock.send(pro_string.encode())
+
+
+# this method handle receiving a file using the given information about its size in bytes,
+# by calculating the maximum amount needed to be pulled at the socket at each time.
 def recv_file(sock, file_size):
     bytes = bytearray()
     while len(bytes) < file_size:
@@ -15,6 +36,7 @@ def recv_file(sock, file_size):
     return bytes
 
 
+# this method will receive a path and a relative path and will delete its content recursively
 def rec_folder_delete(path, rel_path):
     path = win_to_lin(path)
     rel_path = win_to_lin(rel_path)
@@ -27,6 +49,7 @@ def rec_folder_delete(path, rel_path):
     os.rmdir(full_path)
 
 
+# this method will receive from the given socket all of the files and folder recursively
 def rec_bulk_recv(sock):
     while True:
         data_size = int.from_bytes(sock.recv(4), 'big')
@@ -41,18 +64,3 @@ def rec_bulk_recv(sock):
             os.makedirs(file_rel_path, exist_ok=True)
         else:
             break
-
-
-def protocol_sender(sock, pro_string):
-    sock.send(len(pro_string).to_bytes(4, 'big'))
-    sock.send(pro_string.encode())
-
-
-def win_to_lin(path):
-    if os.name == 'nt':
-        if '/' in path:
-            return path.replace('/', '\\')
-    else:
-        if '\\' in path:
-            return path.replace('\\', '/')
-    return path

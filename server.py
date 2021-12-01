@@ -6,17 +6,14 @@ import sys
 from utils import *
 
 
-# TODO: 3) windows <-> linux
-
-
 # input check - raise exception if the program args count isn't 1.
 def args_num_check():
     if len(sys.argv) != 2:
         raise Exception("Only 1 argument allowed.")
 
 
-# If we got user_identifier as parameter, it means we are old clients and
-# we should pull from the server the folder.
+# this method handles the case when we accept an existing user,
+# by sending all of the files to the client recursively.
 def existing_client(client_sock, fold_path):
     for path, dirs, files in os.walk(fold_path):
         for file in files:
@@ -24,9 +21,7 @@ def existing_client(client_sock, fold_path):
             file_name = os.path.relpath(file_path, os.getcwd())
             file_size = str(os.path.getsize(file_path))
             protocol = "file," + file_name + "," + file_size
-            protocol_size = len(protocol).to_bytes(4, 'big')
-            client_sock.send(protocol_size)
-            client_sock.send(protocol.encode())
+            protocol_sender(client_sock, protocol)
             f = open(file_path, "rb")
             client_socket.send(f.read())
         for folder in dirs:
@@ -34,11 +29,8 @@ def existing_client(client_sock, fold_path):
             folder_name = os.path.relpath(fol_path, os.getcwd())
             folder_size = str(0)
             protocol = "folder," + folder_name + "," + folder_size
-            protocol_size = len(protocol).to_bytes(4, 'big')
-            client_sock.send(protocol_size)
-            client_sock.send(protocol.encode())
-    client_sock.send(len("0,0,0").to_bytes(4, 'big'))
-    client_sock.send("0,0,0".encode())
+            protocol_sender(client_sock, protocol)
+    protocol_sender(client_sock, "0,0,0")
 
 
 # If we didn't get user_identifier as parameter, it means we are new clients and
@@ -140,32 +132,36 @@ def event(sock):
 args_num_check()
 port_check(sys.argv[1])
 port = int(sys.argv[1])
+
+# init of the changes and pc id counter databases
 changes_map = dict()
 counter_map = dict()
+
+# sets the current dir and empty user id
 current_dir = os.getcwd()
 user_id = ""
+
+# socket init
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
-server.listen(50)
+server.listen(5)
 
-# 0 - first connection
-# 1 - get update from server
-# 2- event
-
-
-# this is the main loop of the server
-# each iteration: 1) reset the current dir to the main folder of the server
-#                 2) the server accepts a client and receive a protocol from the client
-#                 3) analyze the protocol and update the client id, pc id, and given operation
-#                 4) operate accordingly to the given client ID ( new / old / old with new PC )
+# this is the main loop of the server,
+# each iteration: 1) reset the current dir to the main folder of the server.
+#                 2) the server accepts a client and receive a protocol from the client.
+#                 3) analyze the protocol and update the client id, pc id, and given operation.
+#                 4) operate accordingly to the given client ID ( new / old / old with new PC ).
 #                   4.1) new client -> create query in the change_map, and create changes list,
 #                                      then push client's folder to the server.
 #                   4.2) old client -> preforms this actions :
 #                       4.2.1) if client logged from new PC -> increment counter_map of client ID,
-#                                                              and add query for the new PC in the changes_map
-#                       4.2.2) set current dir to the client ID dir
+#                                                              and add query for the new PC in the changes_map.
+#                       4.2.2) set current dir to the client ID dir.
 #                       4.2.3) operate accordingly to the given operation ID ( 0 / 1 / 2 )
-#                           4.2.3.1) operation ID == 0 -> this is
+#                           4.2.3.1) operation ID == 0 -> this is the first connection,
+#                                                         pulls everything from the server.
+#                           4.2.3.2) operation ID == 1 -> client is seeking for updates from the server.
+#                           4.2.3.3) operation ID == 2 -> client is pushing an update to the server.
 while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
@@ -183,14 +179,18 @@ while True:
             client_socket.send(pc_id.to_bytes(4, 'big'))
             (changes_map[user_id])[pc_id] = []
         os.chdir(os.path.join(current_dir, user_id))
+        # handle update from client
         if operation == "2":
             event(client_socket)
+        # updates the client of changes, if they exist:
+        # if there are changes, send 1. otherwise send 0.
         elif operation == "1":
             if len(changes_map.get(user_id).get(pc_id)) == 0:
                 client_socket.send("0".encode())
             else:
                 client_socket.send("1".encode())
                 update_client()
+        # this is the first connection of an existing client.
         else:
             existing_client(client_socket, os.getcwd())
 
