@@ -29,11 +29,11 @@ def protocol_sender(sock, pro_string):
 # this method handle receiving a file using the given information about its size in bytes,
 # by calculating the maximum amount needed to be pulled at the socket at each time.
 def recv_file(sock, file_size):
-    bytes = bytearray()
-    while len(bytes) < file_size:
-        data = sock.recv(file_size - len(bytes))
-        bytes.extend(data)
-    return bytes
+    bytes_arr = bytearray()
+    while len(bytes_arr) < file_size:
+        data = sock.recv(file_size - len(bytes_arr))
+        bytes_arr.extend(data)
+    return bytes_arr
 
 
 # this method will receive a path and a relative path and will delete its content recursively
@@ -49,7 +49,7 @@ def rec_folder_delete(path, rel_path):
     os.rmdir(full_path)
 
 
-# this method will receive from the given socket all of the files and folder recursively
+# this method will receive from the given socket all the files and folder recursively
 def rec_bulk_recv(sock):
     while True:
         data_size = int.from_bytes(sock.recv(4), 'big')
@@ -67,7 +67,7 @@ def rec_bulk_recv(sock):
 
 
 # this method handles the case when we accept an existing user,
-# by sending all of the files to the client recursively.
+# by sending all the files to the client recursively.
 def rec_bulk_send(sock, fold_path):
     for path, dirs, files in os.walk(fold_path):
         for file in files:
