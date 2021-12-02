@@ -60,11 +60,11 @@ def time_to_reach_check(time_to_connect):
 
 
 def update(sock):
+    ignored_events.clear()
     while True:
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
-           # ignored_events.clear()
             break
         print(data)
         ignored_events.append(data)
