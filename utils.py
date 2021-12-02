@@ -101,3 +101,47 @@ def rec_folder_move(dest, src, home):
             dest_path = os.path.join(dest_path, name)
             os.makedirs(dest_path)
     rec_folder_delete(home, src)
+
+
+def created_event(sock, file_type, home_path, path):
+    if file_type == "folder":
+        if not os.path.exists(os.path.join(home_path, path)):
+            os.makedirs(os.path.join(home_path, path))
+    else:
+        size = int.from_bytes(sock.recv(4), 'big')
+        f = open(os.path.join(home_path, path), "wb")
+        f.write(recv_file(sock, size))
+        f.close()
+
+
+def deleted_event(file_type, home_path, path):
+    if file_type == "folder":
+        if os.path.isdir(os.path.join(home_path, path)):
+            rec_folder_delete(home_path, path)
+    else:
+        if os.path.isfile(os.path.join(home_path, path)):
+            os.remove(os.path.join(home_path, path))
+
+
+def modified_event(sock, home_path, path):
+    size = int.from_bytes(sock.recv(4), 'big')
+    f = open(os.path.join(home_path, path), "wb")
+    f.write(recv_file(sock, size))
+    f.close()
+
+
+def moved_event(file_type, home_path, path):
+    src, dest = str(path).split('>')
+    if os.path.exists(os.path.join(home_path, src)):
+        if os.path.dirname(src) == os.path.dirname(dest):
+            os.renames(src, dest)
+            return
+        if file_type == "folder":
+            rec_folder_move(dest, src, home_path)
+        else:
+            src_file = open(os.path.join(home_path, src), "rb")
+            dest_file = open(os.path.join(home_path, dest), "wb")
+            dest_file.write(src_file.read())
+            src_file.close()
+            dest_file.close()
+            os.remove(os.path.join(home_path, src))

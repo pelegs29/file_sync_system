@@ -60,40 +60,13 @@ def event(sock):
             if comp_id != pc_id:
                 change_list.append(data)
     if event_type == "created":
-        if file_type == "folder":
-            if not os.path.exists(os.path.join(os.getcwd(), path)):
-                os.makedirs(os.path.join(os.getcwd(), path))
-        else:
-            size = int.from_bytes(sock.recv(4), 'big')
-            f = open(os.path.join(os.getcwd(), path), "wb")
-            f.write(recv_file(sock, size))
-            f.close()
-    if event_type == "deleted":
-        if file_type == "folder" and os.path.isdir(os.path.join(os.getcwd(), path)):
-            rec_folder_delete(os.getcwd(), path)
-        else:
-            if os.path.isfile(os.path.join(os.getcwd(), path)):
-                os.remove(os.path.join(os.getcwd(), path))
-    if event_type == "modified":
-        size = int.from_bytes(sock.recv(4), 'big')
-        f = open(os.path.join(os.getcwd(), path), "wb")
-        f.write(recv_file(sock, size))
-        f.close()
-    if event_type == "moved":
-        src, dest = str(path).split('>')
-        if os.path.exists(os.path.join(os.getcwd(), src)):
-            if os.path.dirname(src) == os.path.dirname(dest):
-                os.renames(src, dest)
-                return
-            if file_type == "folder":
-                rec_folder_move(dest, src, os.getcwd())
-            else:
-                src_file = open(os.path.join(os.getcwd(), src), "rb")
-                dest_file = open(os.path.join(os.getcwd(), dest), "wb")
-                dest_file.write(src_file.read())
-                src_file.close()
-                dest_file.close()
-                os.remove(os.path.join(os.getcwd(), src))
+        created_event(sock, file_type, os.getcwd(), path)
+    elif event_type == "deleted":
+        deleted_event(file_type, os.getcwd(), path)
+    elif event_type == "modified":
+        modified_event(sock, os.getcwd(), path)
+    else:
+        moved_event(file_type, os.getcwd(), path)
 
 
 # input checks

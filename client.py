@@ -71,39 +71,13 @@ def update(sock):
             ignored_events.append(modified_data)
         path = win_to_lin(path)
         if event_type == "created":
-            if file_type == "folder":
-                if not os.path.exists(os.path.join(folder_path, path)):
-                    os.makedirs(os.path.join(folder_path, path))
-            else:
-                size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(folder_path, path), "wb")
-                f.write(recv_file(sock, size))
-                f.close()
+            created_event(sock, file_type, folder_path, path)
         elif event_type == "deleted":
-            if file_type == "folder":
-                if os.path.isdir(os.path.join(folder_path, path)):
-                    rec_folder_delete(folder_path, path)
-            else:
-                if os.path.isfile(os.path.join(folder_path, path)):
-                    os.remove(os.path.join(folder_path, path))
+            deleted_event(file_type, folder_path, path)
         elif event_type == "modified":
-            if file_type == "file":
-                size = int.from_bytes(sock.recv(4), 'big')
-                f = open(os.path.join(folder_path, path), "wb")
-                f.write(recv_file(sock, size))
-                f.close()
+            modified_event(sock, folder_path, path)
         else:
-            src, dest = str(path).split('>')
-            if os.path.exists(os.path.join(folder_path, src)):
-                if file_type == "folder":
-                    rec_folder_move(dest, src, folder_path)
-                else:
-                    src_file = open(os.path.join(folder_path, src), "rb")
-                    dest_file = open(os.path.join(folder_path, dest), "wb")
-                    dest_file.write(src_file.read())
-                    src_file.close()
-                    dest_file.close()
-                    os.remove(os.path.join(folder_path, src))
+            moved_event(file_type, folder_path, path)
 
 
 # running input checks
