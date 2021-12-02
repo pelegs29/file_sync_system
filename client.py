@@ -40,7 +40,7 @@ def event_exist(event):
 # input check - raise exception if one of the condition is met :
 # -> there are less or more than 4 dots in the ip address.
 # -> there is a section in the ip that not contains only numbers.
-# -> there are less then 1 or more than 4 numbers in each section of the op
+# -> there are less than 1 or more than 4 numbers in each section of the op
 def ip_check(ip_input):
     ip_parts = str(ip_input).split(".")
     if len(ip_parts) != 4:
@@ -98,7 +98,7 @@ time_to_reach = float(sys.argv[4])
 ignored_events = []
 SYS_TEMP_FILE = ".goutputstream"
 
-# in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
+# in case the user did not enter user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
     user_identifier = "NEW"
 else:
@@ -179,8 +179,8 @@ start_protocol = user_identifier + "," + "999" + ",0"
 protocol_sender(s, start_protocol)
 
 # client initial code before changes monitoring,
-# if no user_ID given as args ->  inform the server and get a new ID, then upload all of the folder to the server
-# else -> this is an existing user, create the folder and download all of the files from the server.
+# if no user_ID given as args ->  inform the server and get a new ID, then upload all the folder to the server
+# else -> this is an existing user, create the folder and download all the files from the server.
 if user_identifier == "NEW":
     user_identifier = s.recv(128).decode("UTF-8", 'strict')
     pc_id = int.from_bytes(s.recv(4), 'big')

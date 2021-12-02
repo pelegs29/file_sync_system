@@ -42,12 +42,12 @@ def generate_user_identifier():
 
 def event(sock):
     event_size = int.from_bytes(sock.recv(4), 'big')
-    data = sock.recv(event_size).decode("UTF-8", 'strict')
-    event_type, file_type, path = data.split(',')
+    event_data = sock.recv(event_size).decode("UTF-8", 'strict')
+    event_type, file_type, path = event_data.split(',')
     path = win_to_lin(path)
     if file_type == "file" and os.path.isdir(os.path.join(os.getcwd(), path)):
         file_type = "folder"
-        data = event_type + "," + file_type + "," + path
+        event_data = event_type + "," + file_type + "," + path
     if event_type == "modified" and file_type == "folder":
         return
     else:
@@ -57,7 +57,7 @@ def event(sock):
             return
         for comp_id, change_list in changes_map[user_id].items():
             if comp_id != pc_id:
-                change_list.append(data)
+                change_list.append(event_data)
     if event_type == "created":
         created_event(sock, file_type, os.getcwd(), path)
     elif event_type == "deleted":
@@ -123,7 +123,7 @@ while True:
         if operation == "2":
             event(client_socket)
         # updates the client of changes, if they exist:
-        # if there are changes, send 1. otherwise send 0.
+        # if there are changes, send 1. otherwise, send 0.
         elif operation == "1":
             if len(changes_map.get(user_id).get(pc_id)) == 0:
                 client_socket.send("0".encode())
