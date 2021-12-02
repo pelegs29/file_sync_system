@@ -34,7 +34,6 @@ def compare_event(event, event_str):
 def event_exist(event):
     for e in ignored_events:
         if compare_event(event, e):
-           # ignored_events.remove(e)
             return True
     return False
 
@@ -66,13 +65,11 @@ def update(sock):
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
             break
-        print(data)
         ignored_events.append(data)
         event_type, file_type, path = data.split(',')
         if event_type == "created" and file_type == "file":
-            data2 = data.replace("created", "modified")
-            print(data2)
-            ignored_events.append(data2)
+            modified_data = data.replace("created", "modified")
+            ignored_events.append(modified_data)
         path = win_to_lin(path)
         if event_type == "created":
             if file_type == "folder":
@@ -137,7 +134,6 @@ ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
-dog_flag = False
 ignored_events = []
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
@@ -160,8 +156,6 @@ class Watcher:
         try:
             while True:
                 time.sleep(time_to_reach)
-                global dog_flag
-                dog_flag = True
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
                 protocol_sender(sock, user_identifier + "," + str(pc_id) + ",1")
@@ -169,10 +163,8 @@ class Watcher:
                 if check == "1":
                     update(sock)
                 sock.close()
-                dog_flag = False
-        except Exception as e:
+        except Exception:
             self.observer.stop()
-            print(e)
         self.observer.join()
 
 

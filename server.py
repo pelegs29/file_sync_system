@@ -59,7 +59,6 @@ def event(sock):
         for comp_id, change_list in changes_map[user_id].items():
             if comp_id != pc_id:
                 change_list.append(data)
-                print(str(pc_id) + " : " + data)
     if event_type == "created":
         if file_type == "folder":
             if not os.path.exists(os.path.join(os.getcwd(), path)):
@@ -125,7 +124,7 @@ user_id = ""
 # socket init
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
-server.listen(5)
+server.listen(15)
 
 # this is the main loop of the server,
 # each iteration: 1) reset the current dir to the main folder of the server.
