@@ -34,7 +34,7 @@ def compare_event(event, event_str):
 def event_exist(event):
     for e in ignored_events:
         if compare_event(event, e):
-            ignored_events.remove(e)
+           # ignored_events.remove(e)
             return True
     return False
 
@@ -64,10 +64,15 @@ def update(sock):
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
+            ignored_events.clear()
             break
         print(data)
         ignored_events.append(data)
         event_type, file_type, path = data.split(',')
+        if event_type == "created" and file_type == "file":
+            data2 = data.replace("created", "modified")
+            print(data2)
+            ignored_events.append(data2)
         path = win_to_lin(path)
         if event_type == "created":
             if file_type == "folder":
