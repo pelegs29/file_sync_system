@@ -1,7 +1,6 @@
 import socket
 import random
 import string
-import os
 import sys
 from utils import *
 
