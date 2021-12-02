@@ -134,7 +134,7 @@ def moved_event(file_type, home_path, path):
     src, dest = str(path).split('>')
     if os.path.exists(os.path.join(home_path, src)):
         if os.path.dirname(src) == os.path.dirname(dest):
-            os.renames(src, dest)
+            os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
             return
         if file_type == "folder":
             rec_folder_move(dest, src, home_path)
