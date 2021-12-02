@@ -11,6 +11,19 @@ def args_num_check():
         raise Exception("Only 1 argument allowed.")
 
 
+def rename_fix():
+    for s in changes_map.get(user_id).get(pc_id):
+        for j in changes_map.get(user_id).get(pc_id):
+            if j == s:
+                continue
+            event_type_j, file_type_j, path_j = j.split(',')
+            event_type_s, file_type_s, path_s = s.split(',')
+            if (event_type_j == "moved" and event_type_s == "created") \
+                    or (event_type_s == "moved" and event_type_j == "created"):
+
+
+
+
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
 def update_client():
