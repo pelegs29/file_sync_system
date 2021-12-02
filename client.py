@@ -96,19 +96,7 @@ def update(sock):
             src, dest = str(path).split('>')
             if os.path.exists(os.path.join(folder_path, src)):
                 if file_type == "folder":
-                    os.makedirs(os.path.join(folder_path, dest))
-                    dest_path = os.path.join(folder_path, dest)
-                    for root, dirs, files in os.walk(os.path.join(folder_path, src)):
-                        for name in files:
-                            src_path = open(os.path.join(root, name), "rb")
-                            f = open(os.path.join(dest_path, name), "wb")
-                            f.write(src_path.read())
-                            f.close()
-                            src_path.close()
-                        for name in dirs:
-                            dest_path = os.path.join(dest_path, name)
-                            os.makedirs(dest_path)
-                    rec_folder_delete(folder_path, src)
+                    rec_folder_move(dest, src, folder_path)
                 else:
                     src_file = open(os.path.join(folder_path, src), "rb")
                     dest_file = open(os.path.join(folder_path, dest), "wb")

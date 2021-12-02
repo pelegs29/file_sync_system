@@ -86,19 +86,7 @@ def event(sock):
                 os.renames(src, dest)
                 return
             if file_type == "folder":
-                os.makedirs(os.path.join(os.getcwd(), dest))
-                dest_path = os.path.join(os.getcwd(), dest)
-                for root, dirs, files in os.walk(os.path.join(os.getcwd(), src)):
-                    for name in files:
-                        src_path = open(os.path.join(root, name), "rb")
-                        f = open(os.path.join(dest_path, name), "wb")
-                        f.write(src_path.read())
-                        f.close()
-                        src_path.close()
-                    for name in dirs:
-                        dest_path = os.path.join(dest_path, name)
-                        os.makedirs(dest_path)
-                rec_folder_delete(os.getcwd(), src)
+                rec_folder_move(dest, src, os.getcwd())
             else:
                 src_file = open(os.path.join(os.getcwd(), src), "rb")
                 dest_file = open(os.path.join(os.getcwd(), dest), "wb")
