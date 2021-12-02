@@ -122,6 +122,7 @@ port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
 time_to_reach = float(sys.argv[4])
 ignored_events = []
+SYS_TEMP_FILE = ".goutputstream"
 
 # in case the user did not entered user identifier, generate one with 128 chars with generate_user_identifier function.
 if len(sys.argv) == 5:
@@ -156,7 +157,7 @@ class Watcher:
 
 
 def handle_event(event_type, file_type, sock, event):
-    if ".goutputstream" in event.src_path:
+    if SYS_TEMP_FILE in event.src_path:
         src_path = event.dest_path
     else:
         src_path = event.src_path
@@ -174,8 +175,6 @@ def handle_event(event_type, file_type, sock, event):
             f = open(src_path, "rb")
             sock.send(f.read())
             f.close()
-    # if event.event_type == "moved" and file_type == "folder":
-    # new_client(sock, event.src_path)
 
 
 class Handler(FileSystemEventHandler):
@@ -183,7 +182,7 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
             return None
-        if ".goutputstream" in event.src_path:
+        if SYS_TEMP_FILE in event.src_path:
             if event.event_type == "created" or event.event_type == "modified":
                 return None
             else:
@@ -194,22 +193,9 @@ class Handler(FileSystemEventHandler):
             protocol_sender(event_sock, user_identifier + "," + str(pc_id) + ",2")
             if event.is_directory:
                 file_type = "folder"
-                if event.event_type == 'created':
-                    handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'moved':
-                    handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'deleted':
-                    handle_event(event.event_type, file_type, event_sock, event)
             else:
                 file_type = "file"
-                if event.event_type == 'created':
-                    handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'modified':
-                    handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'moved':
-                    handle_event(event.event_type, file_type, event_sock, event)
-                elif event.event_type == 'deleted':
-                    handle_event(event.event_type, file_type, event_sock, event)
+            handle_event(event.event_type, file_type, event_sock, event)
             event_sock.close()
 
 
