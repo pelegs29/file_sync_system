@@ -40,7 +40,7 @@ def event_exist(event):
 
 
 # input check - raise exception if one of the condition is met :
-# -> there are less or more than 4 dots in the ip address
+# -> there are less or more than 4 dots in the ip address.
 # -> there is a section in the ip that not contains only numbers
 # -> there are less then 1 or more than 4 numbers in each section of the op
 def ip_check(ip_input):
