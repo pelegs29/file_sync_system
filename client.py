@@ -64,7 +64,7 @@ def update(sock):
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
-            ignored_events.clear()
+           # ignored_events.clear()
             break
         print(data)
         ignored_events.append(data)
