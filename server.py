@@ -84,7 +84,7 @@ user_id = ""
 # socket init
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('', port))
-server.listen(15)
+server.listen(150)
 
 # this is the main loop of the server,
 # each iteration: 1) reset the current dir to the main folder of the server.
