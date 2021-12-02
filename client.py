@@ -65,6 +65,7 @@ def update(sock):
         data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
             break
+        print(data)
         ignored_events.append(data)
         event_type, file_type, path = data.split(',')
         path = win_to_lin(path)
