@@ -18,15 +18,28 @@ def rename_fix():
                 continue
             event_type_j, file_type_j, path_j = j.split(',')
             event_type_s, file_type_s, path_s = s.split(',')
-            if (event_type_j == "moved" and event_type_s == "created") \
-                    or (event_type_s == "moved" and event_type_j == "created"):
-
-
+            if event_type_j == "moved" and event_type_s == "created":
+                if file_type_j == file_type_s:
+                    src_j, dest_j = path_j.split('>')
+                    if src_j == path_s:
+                        new_change = "created," + file_type_s + "," + dest_j
+                        list(changes_map.get(user_id).get(pc_id)).remove(s)
+                        list(changes_map.get(user_id).get(pc_id)).remove(j)
+                        list(changes_map.get(user_id).get(pc_id)).append(new_change)
+            if event_type_s == "moved" and event_type_j == "created":
+                if file_type_j == file_type_s:
+                    src_s, dest_s = path_j.split('>')
+                    if src_s == path_j:
+                        new_change = "created," + file_type_s + "," + dest_s
+                        list(changes_map.get(user_id).get(pc_id)).remove(s)
+                        list(changes_map.get(user_id).get(pc_id)).remove(j)
+                        list(changes_map.get(user_id).get(pc_id)).append(new_change)
 
 
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
 def update_client():
+    rename_fix()
     for s in changes_map.get(user_id).get(pc_id):
         protocol_sender(client_socket, s)
         event_type, file_type, path = s.split(',')
