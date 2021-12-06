@@ -93,7 +93,7 @@ def rec_folder_move(dest, src, home):
     dest_path = os.path.join(home, dest)
     for root, dirs, files in os.walk(os.path.join(home, src)):
         for name in files:
-            os.renames(os.path.join(root, name), os.path.join(dest_path, name))
+            os.rename(os.path.join(root, name), os.path.join(dest_path, name))
         for name in dirs:
             dest_path = os.path.join(dest_path, name)
             os.makedirs(dest_path)
@@ -105,7 +105,15 @@ def created_event(sock, file_type, home_path, path):
         if not os.path.exists(os.path.join(home_path, path)):
             os.makedirs(os.path.join(home_path, path))
     else:
-        modified_event(sock, home_path, path)
+        if os.path.exists(os.path.join(home_path, path)):
+            sock.send(int(1).to_bytes(1, 'big'))
+            return
+        else:
+            sock.send(int(0).to_bytes(0, 'big'))
+        size = int.from_bytes(sock.recv(4), 'big')
+        f = open(os.path.join(home_path, path), "wb")
+        f.write(recv_file(sock, size))
+        f.close()
 
 
 def deleted_event(file_type, home_path, path):
@@ -117,11 +125,11 @@ def deleted_event(file_type, home_path, path):
 
 
 def modified_event(sock, home_path, path):
-    if os.path.exists(os.path.join(home_path, path)):
-        sock.send(int(0).to_bytes(1, 'big'))
-    else:
+    if not os.path.exists(os.path.join(home_path, path)):
         sock.send(int(1).to_bytes(1, 'big'))
         return
+    else:
+        sock.send(int(0).to_bytes(0, 'big'))
     size = int.from_bytes(sock.recv(4), 'big')
     f = open(os.path.join(home_path, path), "wb")
     f.write(recv_file(sock, size))
