@@ -21,13 +21,15 @@ def rename_fix():
             if file_type_j == file_type_s:
                 if event_type_j == "moved" and event_type_s == "created":
                     src, dest = path_j.split('>')
-                else:
+                elif event_type_s == "moved" and event_type_j == "created":
                     src, dest = path_s.split('>')
-                if dest == path_s or dest == path_j:
+                else:
+                    continue
+                if src == path_s or src == path_j:
                     new_change = "created," + file_type_s + "," + dest
-                    list(changes_map.get(user_id).get(pc_id)).remove(s)
-                    list(changes_map.get(user_id).get(pc_id)).remove(j)
-                    list(changes_map.get(user_id).get(pc_id)).append(new_change)
+                    changes_map.get(user_id).get(pc_id).remove(s)
+                    changes_map.get(user_id).get(pc_id).remove(j)
+                    changes_map.get(user_id).get(pc_id).append(new_change)
 
 
 # method to update the client of changes that has been made by other computers
@@ -62,7 +64,7 @@ def generate_user_identifier():
 
 def event(sock):
     event_size = int.from_bytes(sock.recv(4), 'big')
-    event_data = sock.recv(event_size).decode("UTF-8", 'strict')
+    event_data = sock.recv(event_size).decode()
     event_type, file_type, path = event_data.split(',')
     path = win_to_lin(path)
     if file_type == "file" and os.path.isdir(os.path.join(os.getcwd(), path)):
@@ -126,7 +128,7 @@ while True:
     os.chdir(current_dir)
     client_socket, client_address = server.accept()
     protocol_size = int.from_bytes(client_socket.recv(4), 'big')
-    data = client_socket.recv(protocol_size).decode("UTF-8", 'strict')
+    data = client_socket.recv(protocol_size).decode()
     client_id, pc_id, operation = data.split(',')
     pc_id = int(pc_id)
     folders_list = list_dirs(os.getcwd())
