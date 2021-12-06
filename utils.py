@@ -93,11 +93,6 @@ def rec_folder_move(dest, src, home):
     for root, dirs, files in os.walk(os.path.join(home, src)):
         for name in files:
             os.renames(os.path.join(root, name), os.path.join(dest_path, name))
-            #src_path = open(os.path.join(root, name), "rb")
-            #f = open(os.path.join(dest_path, name), "wb")
-            #f.write(src_path.read())
-            #f.close()
-            #src_path.close()
         for name in dirs:
             dest_path = os.path.join(dest_path, name)
             os.makedirs(dest_path)
