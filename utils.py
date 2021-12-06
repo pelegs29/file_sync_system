@@ -117,7 +117,11 @@ def deleted_event(file_type, home_path, path):
 
 
 def modified_event(sock, home_path, path):
-    sock.send(int(0).to_bytes(1, 'big'))
+    if os.path.exists(os.path.join(home_path, path)):
+        sock.send(int(0).to_bytes(1, 'big'))
+    else:
+        sock.send(int(1).to_bytes(1, 'big'))
+        return
     size = int.from_bytes(sock.recv(4), 'big')
     f = open(os.path.join(home_path, path), "wb")
     f.write(recv_file(sock, size))
