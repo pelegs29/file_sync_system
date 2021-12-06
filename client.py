@@ -61,7 +61,7 @@ def update(sock):
     ignored_events.clear()
     while True:
         size = int.from_bytes(sock.recv(4), 'big')
-        data = sock.recv(size).decode("UTF-8", 'strict')
+        data = sock.recv(size).decode()
         if data == "0,0,0":
             break
         ignored_events.append(data)
@@ -88,7 +88,7 @@ time_to_reach_check(sys.argv[4])
 
 # argument 1 -> ip address
 # argument 2 -> port
-# argument 3 -> input folder path
+# argument 3 -> input folder path.
 # argument 4 -> time to reach in seconds.
 # argument 5 -> user identifier(optional).
 ip = sys.argv[1]
@@ -121,7 +121,7 @@ class Watcher:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
                 protocol_sender(sock, user_identifier + "," + str(pc_id) + ",1")
-                check = sock.recv(1).decode("UTF-8", 'strict')
+                check = sock.recv(1).decode()
                 if check == "1":
                     update(sock)
                 sock.close()
@@ -175,8 +175,7 @@ class Handler(FileSystemEventHandler):
 
 
 if os.path.exists(folder_path) and user_identifier != "NEW":
-    raise Exception("Folder already exists")
-
+    raise Exception("Folder already exists!")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 start_protocol = user_identifier + "," + "999" + ",0"
@@ -186,7 +185,7 @@ protocol_sender(s, start_protocol)
 # if no user_ID given as args ->  inform the server and get a new ID, then upload all the folder to the server
 # else -> this is an existing user, create the folder and download all the files from the server.
 if user_identifier == "NEW":
-    user_identifier = s.recv(128).decode("UTF-8", 'strict')
+    user_identifier = s.recv(128).decode()
     pc_id = int.from_bytes(s.recv(4), 'big')
     rec_bulk_send(s, folder_path)
 else:
