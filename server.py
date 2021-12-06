@@ -44,9 +44,6 @@ def update_client():
         if (event_type == "created" or event_type == "modified") and file_type == "file":
             if not os.path.exists(os.path.join(os.getcwd(), path)):
                 continue
-            ignore_check = int.from_bytes(client_socket.recv(1), 'big')
-            if ignore_check == 1:
-                return
             client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
@@ -77,7 +74,6 @@ def event(sock):
         return
     else:
         if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
-            sock.send(int(1).to_bytes(1, 'big'))
             return
         if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
             return
