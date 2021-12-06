@@ -88,7 +88,7 @@ time_to_reach_check(sys.argv[4])
 
 # argument 1 -> ip address
 # argument 2 -> port
-# argument 3 -> input folder path
+# argument 3 -> input folder path.
 # argument 4 -> time to reach in seconds.
 # argument 5 -> user identifier(optional).
 ip = sys.argv[1]
@@ -174,6 +174,8 @@ class Handler(FileSystemEventHandler):
             event_sock.close()
 
 
+if os.path.exists(folder_path) and user_identifier != "NEW":
+    raise Exception("Folder already exists!")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 start_protocol = user_identifier + "," + "999" + ",0"
