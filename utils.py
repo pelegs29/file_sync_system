@@ -46,7 +46,8 @@ def rec_folder_delete(path, rel_path):
             os.remove(os.path.join(root, name))
         for name in dirs:
             os.rmdir(os.path.join(root, name))
-    os.rmdir(full_path)
+    if os.path.exists(full_path):
+        os.rmdir(full_path)
 
 
 # this method will receive from the given socket all the files and folder recursively
