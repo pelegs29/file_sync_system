@@ -61,7 +61,7 @@ def update(sock):
     ignored_events.clear()
     while True:
         size = int.from_bytes(sock.recv(4), 'big')
-        data = sock.recv(size).decode()
+        data = sock.recv(size).decode("UTF-8", 'strict')
         if data == "0,0,0":
             break
         ignored_events.append(data)
@@ -121,7 +121,7 @@ class Watcher:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((ip, port))
                 protocol_sender(sock, user_identifier + "," + str(pc_id) + ",1")
-                check = sock.recv(1).decode()
+                check = sock.recv(1).decode("UTF-8", 'strict')
                 if check == "1":
                     update(sock)
                 sock.close()
@@ -183,7 +183,7 @@ protocol_sender(s, start_protocol)
 # if no user_ID given as args ->  inform the server and get a new ID, then upload all the folder to the server
 # else -> this is an existing user, create the folder and download all the files from the server.
 if user_identifier == "NEW":
-    user_identifier = s.recv(128).decode()
+    user_identifier = s.recv(128).decode("UTF-8", 'strict')
     pc_id = int.from_bytes(s.recv(4), 'big')
     rec_bulk_send(s, folder_path)
 else:
