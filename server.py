@@ -74,6 +74,7 @@ def event(sock):
         return
     else:
         if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
+            sock.send(int(1).to_bytes(1, 'big'))
             return
         if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
             return
