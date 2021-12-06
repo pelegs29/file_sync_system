@@ -174,6 +174,9 @@ class Handler(FileSystemEventHandler):
             event_sock.close()
 
 
+if os.path.exists(folder_path) and user_identifier != "NEW":
+    raise Exception("Folder already exists")
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 start_protocol = user_identifier + "," + "999" + ",0"
