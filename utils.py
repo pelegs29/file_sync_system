@@ -105,11 +105,7 @@ def created_event(sock, file_type, home_path, path):
         if not os.path.exists(os.path.join(home_path, path)):
             os.makedirs(os.path.join(home_path, path))
     else:
-        sock.send(int(0).to_bytes(1, 'big'))
-        size = int.from_bytes(sock.recv(4), 'big')
-        f = open(os.path.join(home_path, path), "wb")
-        f.write(recv_file(sock, size))
-        f.close()
+        modified_event(sock, home_path, path)
 
 
 def deleted_event(file_type, home_path, path):
