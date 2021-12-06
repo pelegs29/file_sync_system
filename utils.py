@@ -111,11 +111,10 @@ def created_event(sock, file_type, home_path, path):
 
 
 def deleted_event(file_type, home_path, path):
-    if file_type == "folder":
-        if os.path.isdir(os.path.join(home_path, path)):
+    if os.path.exists(os.path.join(home_path, path)):
+        if file_type == "folder":
             rec_folder_delete(home_path, path)
-    else:
-        if os.path.isfile(os.path.join(home_path, path)):
+        else:
             os.remove(os.path.join(home_path, path))
 
 
