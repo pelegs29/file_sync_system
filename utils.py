@@ -54,7 +54,7 @@ def rec_folder_delete(path, rel_path):
 def rec_bulk_recv(sock):
     while True:
         data_size = int.from_bytes(sock.recv(4), 'big')
-        data = sock.recv(data_size).decode()
+        data = sock.recv(data_size).decode("UTF-8", 'strict')
         file_type, file_rel_path, file_size = data.split(',')
         file_rel_path = win_to_lin(file_rel_path)
         if file_type == "file":
