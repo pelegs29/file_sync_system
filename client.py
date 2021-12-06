@@ -88,7 +88,7 @@ time_to_reach_check(sys.argv[4])
 
 # argument 1 -> ip address
 # argument 2 -> port
-# argument 3 -> input folder path
+# argument 3 -> input folder path.
 # argument 4 -> time to reach in seconds.
 # argument 5 -> user identifier(optional).
 ip = sys.argv[1]
