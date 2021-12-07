@@ -37,20 +37,19 @@ def rename_fix():
 def update_client():
     rename_fix()
     for s in changes_map.get(user_id).get(pc_id):
-        protocol_sender(client_socket, s)
         event_type, file_type, path = s.split(',')
         path = win_to_lin(path)
         # if the event is a creation or modification of a file, this file needs to be sent to the client
         if (event_type == "created" or event_type == "modified") and file_type == "file":
             if not os.path.exists(os.path.join(os.getcwd(), path)):
                 continue
-            ignore_check = int.from_bytes(client_socket.recv(1), 'big')
-            if ignore_check == 1:
-                return
+            protocol_sender(client_socket, s)
             client_socket.send(os.path.getsize(os.path.join(os.getcwd(), path)).to_bytes(4, 'big'))
             f = open(os.path.join(os.getcwd(), path), "rb")
             client_socket.send(f.read())
             f.close()
+        else:
+            protocol_sender(client_socket, s)
     changes_map.get(user_id)[pc_id] = []
     protocol_sender(client_socket, "0,0,0")
 
@@ -77,7 +76,6 @@ def event(sock):
         return
     else:
         if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
-            sock.send(int(1).to_bytes(1, 'big'))
             return
         if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
             return
