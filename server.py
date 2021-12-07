@@ -76,7 +76,7 @@ def event(sock):
         return
     else:
         if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
-            sock.send(int(1).to_bytes(1, 'big'))
+            sock.send(int(1).to_bytes(4, 'big'))
             return
         if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
             return
@@ -85,12 +85,12 @@ def event(sock):
                 change_list.append(event_data)
     if event_type == "created":
         if file_type == "file":
-            sock.send(int(0).to_bytes(1, 'big'))
+            sock.send(int(0).to_bytes(4, 'big'))
         created_event(sock, file_type, os.getcwd(), path)
     elif event_type == "deleted":
         deleted_event(file_type, os.getcwd(), path)
     elif event_type == "modified":
-        sock.send(int(0).to_bytes(1, 'big'))
+        sock.send(int(0).to_bytes(4, 'big'))
         modified_event(sock, os.getcwd(), path)
     else:
         moved_event(file_type, os.getcwd(), path)
