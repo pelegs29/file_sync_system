@@ -84,7 +84,8 @@ def event(sock):
             if comp_id != pc_id:
                 change_list.append(event_data)
     if event_type == "created":
-        sock.send(int(0).to_bytes(1, 'big'))
+        if file_type == "file":
+            sock.send(int(0).to_bytes(1, 'big'))
         created_event(sock, file_type, os.getcwd(), path)
     elif event_type == "deleted":
         deleted_event(file_type, os.getcwd(), path)
