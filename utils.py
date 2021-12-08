@@ -135,6 +135,8 @@ def moved_event(file_type, home_path, path):
         if file_type == "folder":
             rec_folder_move(dest, src, home_path)
         else:
+            if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
+                os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
             src_file = open(os.path.join(home_path, src), "rb")
             dest_file = open(os.path.join(home_path, dest), "wb")
             dest_file.write(src_file.read())
