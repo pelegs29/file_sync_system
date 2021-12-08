@@ -136,6 +136,12 @@ def handle_event(event_type, file_type, sock, event):
         src_path = event.dest_path
     else:
         src_path = event.src_path
+    if event.event_type == "closed":
+        checker = int.from_bytes(sock.recv(4), 'big')
+        if checker == 1:
+            return
+        else:
+            event_type = "created"
     if event_type == "moved":
         rel_src_path = os.path.relpath(event.src_path, folder_path)
         rel_dest_path = os.path.relpath(event.dest_path, folder_path)
@@ -158,7 +164,8 @@ def handle_event(event_type, file_type, sock, event):
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
-        if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
+        if event.is_directory and (
+                event.event_type == "modified" or event.event_type == "closed"):  # or event.event_type == "closed":
             return None
         if SYS_TEMP_FILE in event.src_path:
             if event.event_type == "created" or event.event_type == "modified":

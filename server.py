@@ -69,6 +69,12 @@ def event(sock):
     event_data = sock.recv(event_size).decode()
     event_type, file_type, path = event_data.split(',')
     path = win_to_lin(path)
+    if event_type == "closed":
+        if os.path.exists(os.path.join(os.getcwd(), path)):
+            sock.send(int(1).to_bytes(4, 'big'))
+        else:
+            sock.send(int(0).to_bytes(4, 'big'))
+            event_type = "created"
     if file_type == "file" and os.path.isdir(os.path.join(os.getcwd(), path)):
         file_type = "folder"
         event_data = event_type + "," + file_type + "," + path
