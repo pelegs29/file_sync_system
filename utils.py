@@ -142,12 +142,12 @@ def moved_event(file_type, home_path, path):
             if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
                 os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
             move_file(os.path.join(home_path, src), os.path.join(home_path, dest))
+            os.remove(os.path.join(home_path, src))
 
 
 def move_file(src_path, dest_path):
-    src_file = open(os.path.join(src_path), "rb")
-    dest_file = open(os.path.join(dest_path), "wb")
+    src_file = open(src_path, "rb")
+    dest_file = open(dest_path, "wb")
     dest_file.write(src_file.read())
     src_file.close()
     dest_file.close()
-    os.remove(src_path)
