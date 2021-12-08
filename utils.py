@@ -95,8 +95,8 @@ def rec_folder_move(dest, src, home):
         for name in files:
             move_file(os.path.join(root, name), os.path.join(dest_path, name))
         for name in dirs:
-            dest_path = os.path.join(dest_path, name)
             os.makedirs(dest_path)
+            dest_path = os.path.join(dest_path, name)
     rec_folder_delete(home, src)
 
 
