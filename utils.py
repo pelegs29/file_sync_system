@@ -90,13 +90,13 @@ def rec_bulk_send(sock, fold_path):
 
 def rec_folder_move(dest, src, home):
     os.makedirs(os.path.join(home, dest))
-    dest_path = os.path.join(home, dest)
     for root, dirs, files in os.walk(os.path.join(home, src)):
         for name in files:
-            move_file(os.path.join(root, name), os.path.join(dest_path, name))
+            rel_path = os.path.relpath(os.path.join(root, name), home)
+            move_file(os.path.join(root, name), os.path.join(dest, rel_path))
         for name in dirs:
-            os.makedirs(dest_path)
-            dest_path = os.path.join(dest_path, name)
+            rel_path = os.path.relpath(os.path.join(root, name), home)
+            os.makedirs(os.path.join(dest, rel_path))
     rec_folder_delete(home, src)
 
 
