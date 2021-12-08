@@ -130,18 +130,21 @@ def moved_event(file_type, home_path, path):
     src, dest = str(path).split('>')
     if os.path.exists(os.path.join(home_path, src)):
         if os.path.dirname(src) == os.path.dirname(dest):
-            if os.path.exists(os.path.join(home_path, dest)):
+            if os.path.exists(os.path.join(home_path, dest)) and file_type == "folder":
+                if os.path.exists(os.path.join(home_path, src)):
+                    os.rmdir(os.path.join(home_path, src))
                 return
             os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
             return
         if file_type == "folder":
             rec_folder_move(dest, src, home_path)
         else:
-            if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
-                os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
-            src_file = open(os.path.join(home_path, src), "rb")
-            dest_file = open(os.path.join(home_path, dest), "wb")
-            dest_file.write(src_file.read())
-            src_file.close()
-            dest_file.close()
-            os.remove(os.path.join(home_path, src))
+            os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
+            # if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
+            #  os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
+            # src_file = open(os.path.join(home_path, src), "rb")
+            # dest_file = open(os.path.join(home_path, dest), "wb")
+            # dest_file.write(src_file.read())
+            # src_file.close()
+            # dest_file.close()
+            # os.remove(os.path.join(home_path, src))
