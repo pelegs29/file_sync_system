@@ -93,13 +93,7 @@ def rec_folder_move(dest, src, home):
     dest_path = os.path.join(home, dest)
     for root, dirs, files in os.walk(os.path.join(home, src)):
         for name in files:
-            #os.renames(os.path.join(root, name), os.path.join(dest_path, name))
-            src_file = open(os.path.join(home, src), "rb")
-            dest_file = open(os.path.join(dest_path, name), "wb")
-            dest_file.write(src_file.read())
-            src_file.close()
-            dest_file.close()
-            os.remove(os.path.join(home, src))
+            move_file(os.path.join(home, src), os.path.join(dest_path, name))
         for name in dirs:
             dest_path = os.path.join(dest_path, name)
             os.makedirs(dest_path)
@@ -145,12 +139,15 @@ def moved_event(file_type, home_path, path):
         if file_type == "folder":
             rec_folder_move(dest, src, home_path)
         else:
-            #os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
             if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
                 os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
-            src_file = open(os.path.join(home_path, src), "rb")
-            dest_file = open(os.path.join(home_path, dest), "wb")
-            dest_file.write(src_file.read())
-            src_file.close()
-            dest_file.close()
-            os.remove(os.path.join(home_path, src))
+            move_file(os.path.join(home_path, src), os.path.join(home_path, dest))
+
+
+def move_file(src_path, dest_path):
+    src_file = open(os.path.join(src_path), "rb")
+    dest_file = open(os.path.join(dest_path), "wb")
+    dest_file.write(src_file.read())
+    src_file.close()
+    dest_file.close()
+    os.remove(src_path)
