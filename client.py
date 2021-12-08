@@ -172,6 +172,12 @@ class Handler(FileSystemEventHandler):
                 return None
             else:
                 event.event_type = "modified"
+        if not event.is_directory and event.event_type == "created":
+            try:
+                with open(event.src_path, "rb") as f:
+                    pass
+            except IOError:
+                return
         if not event_exist(event):
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
