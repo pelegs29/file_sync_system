@@ -30,7 +30,10 @@ def rename_fix():
                     changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_i + "," + dest
                     changes_map.get(user_id).get(pc_id).remove(event_i)
                 else:
+                    j += 1
                     continue
+                j += 1
+            i += 1
 
 
 # method to update the client of changes that has been made by other computers
