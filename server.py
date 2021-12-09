@@ -13,7 +13,6 @@ def args_num_check():
 
 def rename_fix():
     i = 0
-    j = 0
     while i < len(changes_map.get(user_id).get(pc_id)):
         j = i + 1
         while j < len(changes_map.get(user_id).get(pc_id)):
