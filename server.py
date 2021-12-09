@@ -187,6 +187,6 @@ while True:
         pc_id = counter_map.get(user_id)
         (changes_map[user_id])[pc_id] = []
 
-        # get all files from the client
+        # get all files from the client.
         rec_bulk_recv(client_socket)
     client_socket.close()
