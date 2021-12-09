@@ -50,11 +50,14 @@ def rec_folder_delete(path, rel_path):
         os.rmdir(full_path)
 
 
-# this method will receive from the given socket all the files and folder recursively
+# this method will receive from the given socket all the files and folder recursively,
+# each iteration we receive protocol of a file/folder,
+# then if the file_type is file -> receive and write its byte
+#                          else -> make dir with the path given.
 def rec_bulk_recv(sock):
     while True:
         data_size = int.from_bytes(sock.recv(4), 'big')
-        data = sock.recv(data_size).decode("UTF-8", 'strict')
+        data = sock.recv(data_size).decode()
         file_type, file_rel_path, file_size = data.split(',')
         file_rel_path = win_to_lin(file_rel_path)
         if file_type == "file":
@@ -67,8 +70,11 @@ def rec_bulk_recv(sock):
             break
 
 
-# this method handles the case when we accept an existing user,
-# by sending all the files to the client recursively.
+# this method will send to the given socket all the files and folder starting from
+# the given path (fold_path) recursively.
+# using os.walk we traverse from the given path and for each file we send the protocol and the file bytes,
+# and for each folder we send the protocol.
+# at the end we send "0,0,0" to indicate the transfer has been completed.
 def rec_bulk_send(sock, fold_path):
     for path, dirs, files in os.walk(fold_path):
         for file in files:
@@ -88,6 +94,9 @@ def rec_bulk_send(sock, fold_path):
     protocol_sender(sock, "0,0,0")
 
 
+# this method will move all file and folder from the dest path to the src path given,
+# the dest and src paths are relative hence the home path args.
+# we join the home path and the src/dest path in order to get the full path.
 def rec_folder_move(dest, src, home):
     os.makedirs(os.path.join(home, dest))
     for root, dirs, files in os.walk(os.path.join(home, src)):
@@ -100,6 +109,9 @@ def rec_folder_move(dest, src, home):
     rec_folder_delete(home, src)
 
 
+# this method handles created event,
+# if the given file_type is folder -> just open the folder
+# else -> receive the file bytes and write the file.
 def created_event(sock, file_type, home_path, path):
     if file_type == "folder":
         if not os.path.exists(os.path.join(home_path, path)):
@@ -108,6 +120,9 @@ def created_event(sock, file_type, home_path, path):
         modified_event(sock, home_path, path)
 
 
+# this method handles deleted event,
+# if the given file_type is folder -> recursively delete the folder and all the files inside it.
+# else -> delete the single file given.
 def deleted_event(file_type, home_path, path):
     if os.path.exists(os.path.join(home_path, path)):
         if file_type == "folder":
@@ -116,6 +131,8 @@ def deleted_event(file_type, home_path, path):
             os.remove(os.path.join(home_path, path))
 
 
+# this method handles modified event,
+# receive the file size and bytes, then write the file to the given path.
 def modified_event(sock, home_path, path):
     size = int.from_bytes(sock.recv(4), 'big')
     f = open(os.path.join(home_path, path), "wb")
@@ -123,13 +140,23 @@ def modified_event(sock, home_path, path):
     f.close()
 
 
+# this method handles moved event,
+# first we split the dest and src path of the event,
+# if the moved event is a renamed evnet and handle it and rename the file/folder,
+# else -> if the target event is a folder -> recursively move it
+#         else -> move a single file.
 def moved_event(file_type, home_path, path):
     src, dest = str(path).split('>')
+    # if the following conditions are met, this is a rename event :
+    #   - the src path exist
+    #   - the parent directory of the src and dest are the same
+    # furthermore, if the following condition is also met, this is rename evnet of a folder :
+    #   - the dest path exist
+    #   - the dest path is a folder
     if os.path.exists(os.path.join(home_path, src)):
         if os.path.dirname(src) == os.path.dirname(dest):
             if os.path.exists(os.path.join(home_path, dest)) and file_type == "folder":
-                if os.path.exists(os.path.join(home_path, src)):
-                    os.rmdir(os.path.join(home_path, src))
+                os.rmdir(os.path.join(home_path, src))
                 return
             os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
             return
@@ -142,6 +169,9 @@ def moved_event(file_type, home_path, path):
             os.remove(os.path.join(home_path, src))
 
 
+# this method handles a single file move operation.
+# by opening the src file and reading its bytes,
+# and creating a dest file using the bytes received.
 def move_file(src_path, dest_path):
     src_file = open(src_path, "rb")
     dest_file = open(dest_path, "wb")

@@ -12,31 +12,6 @@ def args_num_check():
         raise Exception("Only 4 or 5 arguments allowed.")
 
 
-def compare_event(event, event_str):
-    event_type, file_type, path = event_str.split(',')
-    rel_src_path = os.path.relpath(event.src_path, folder_path)
-    if event_type != event.event_type:
-        return False
-    if file_type == "folder" and not event.is_directory:
-        return False
-    if event_type == "moved":
-        rel_dest_path = os.path.relpath(event.dest_path, folder_path)
-        src, dest = path.split('>')
-        if src != rel_src_path or dest != rel_dest_path:
-            return False
-    else:
-        if path != rel_src_path:
-            return False
-    return True
-
-
-def event_exist(event):
-    for e in ignored_events:
-        if compare_event(event, e):
-            return True
-    return False
-
-
 # input check - raise exception if one of the condition is met :
 # -> there are less or more than 4 dots in the ip address.
 # -> there is a section in the ip that not contains only numbers.
@@ -50,6 +25,7 @@ def ip_check(ip_input):
             raise Exception("Given ip is not valid")
 
 
+# input check - raise exception if the given time to reach is not a number.
 def time_to_reach_check(time_to_connect):
     try:
         float(time_to_connect)
@@ -57,19 +33,60 @@ def time_to_reach_check(time_to_connect):
         raise Exception("Given time to reach is not valid")
 
 
+# this method gets and event and str representation of event
+# and returns True if they are the same event, or false otherwise.
+def compare_event(event, event_str):
+    event_type, file_type, path = event_str.split(',')
+    rel_src_path = os.path.relpath(event.src_path, folder_path)
+    # if the events type are different -> return False
+    if event_type != event.event_type:
+        return False
+    # if the events file types are different -> return False
+    if file_type == "folder" and not event.is_directory:
+        return False
+    # check moved comparison event
+    if event_type == "moved":
+        rel_dest_path = os.path.relpath(event.dest_path, folder_path)
+        src, dest = path.split('>')
+        if src != rel_src_path or dest != rel_dest_path:
+            return False
+    else:
+        if path != rel_src_path:
+            return False
+    return True
+
+
+# this method check if a given event exists in the ignored events list.
+def event_exist(event):
+    for e in ignored_events:
+        if compare_event(event, e):
+            return True
+    return False
+
+
+# this method handles the update from server.
+# each update from the client will be handles one by one.
+# each round of updates starts with resetting the ignored events list, and ends with the protocol "0,0,0".
+# furthermore, this method will update the ignored event list accordingly.
 def update(sock):
     ignored_events.clear()
     while True:
+        # receive event protocol from server.
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode()
+        # if the event protocol given is "0,0,0" end the updates round.
         if data == "0,0,0":
             break
+        # add the event to the ignored event list and split the event protocol.
         ignored_events.append(data)
         event_type, file_type, path = data.split(',')
+        # if the event type is created adds a modified event to the ignored list,
+        # this handles the case when the watchdogs catch modified event for each created event.
         if event_type == "created" and file_type == "file":
             modified_data = data.replace("created", "modified")
             ignored_events.append(modified_data)
         path = win_to_lin(path)
+        # handle each event type :
         if event_type == "created":
             created_event(sock, file_type, folder_path, path)
         elif event_type == "deleted":
@@ -86,11 +103,13 @@ ip_check(sys.argv[1])
 port_check(sys.argv[2])
 time_to_reach_check(sys.argv[4])
 
-# argument 1 -> ip address
-# argument 2 -> port
-# argument 3 -> input folder path.
-# argument 4 -> time to reach in seconds.
-# argument 5 -> user identifier(optional).
+# arguments given :
+#   argument 1 -> ip address
+#   argument 2 -> port
+#   argument 3 -> input folder path.
+#   argument 4 -> time to reach in seconds.
+#   argument 5 -> user identifier(optional).
+# initiating the ignored event list and setting the system_temp_file const.
 ip = sys.argv[1]
 port = int(sys.argv[2])
 folder_path = os.path.abspath(sys.argv[3])
@@ -105,6 +124,11 @@ else:
     user_identifier = sys.argv[5]
 
 
+# this is the watchdog observer class and main loop of the client
+# each iteration the client wait the given time to reach and creates a connection with server,
+# then asks for new updates and wait for response.
+# if the response from the server is "1" -> go to the update method and receive all the updates.
+#                                   else -> close the connection and make another iteration.
 class Watcher:
     DIRECTORY_TO_WATCH = folder_path
 
@@ -130,19 +154,31 @@ class Watcher:
         self.observer.join()
 
 
+# this method will handle the communication between the server and the client upon a valid event,
+# if the event is created or modified of a file this method will send the file bytes to the server.
+# otherwise, only a protocol with the full event details will be sent over to the server.
 def handle_event(event_type, file_type, sock, event):
+    # is this state if a file with the system temp file const (.goutputstream) arrives,
+    # this is a moved event, and we are handling such an event by setting the src_path to
+    # be the dest_path.
     if SYS_TEMP_FILE in event.src_path:
         src_path = event.dest_path
     else:
         src_path = event.src_path
+    # if the event is moved event creates a relative path with a special indicator sign ">"
+    # for example : old_path>new_path
     if event_type == "moved":
         rel_src_path = os.path.relpath(event.src_path, folder_path)
         rel_dest_path = os.path.relpath(event.dest_path, folder_path)
         rel_path = rel_src_path + ">" + rel_dest_path
     else:
         rel_path = os.path.relpath(src_path, folder_path)
+    # send the full event description protocol
     event_desc = event_type + "," + file_type + "," + rel_path
     protocol_sender(sock, event_desc)
+    # if the event is created or modified of a file we will wait for a confirmation flag from the server stating
+    # if the files are valid and ready to be received.
+    # if the flag is valid send the file over to the server.
     if (event.event_type == "created" or event.event_type == "modified") and file_type == "file":
         checker = int.from_bytes(sock.recv(4), 'big')
         if checker == 1:
@@ -154,9 +190,15 @@ def handle_event(event_type, file_type, sock, event):
             f.close()
 
 
+# this class static method that handle all the events that caught by watchdog
 class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
+        # do not handle the event in the following cases :
+        # --> if the event is a DirModified event
+        # --> if the event type is closed
+        # --> if the event src_path includes the system temp file const (.goutputstream),
+        #     and the event is created or modified.
         if (event.is_directory and event.event_type == "modified") or event.event_type == "closed":
             return None
         if SYS_TEMP_FILE in event.src_path:
@@ -164,6 +206,9 @@ class Handler(FileSystemEventHandler):
                 return None
             else:
                 event.event_type = "modified"
+        # only if the event does not exist in the ignored events list, create TCP connection with
+        # the server and send indication protocol we have updates to send to the server.
+        # and continue to handle the event in the handle_event method.
         if not event_exist(event):
             event_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             event_sock.connect((ip, port))
@@ -176,8 +221,12 @@ class Handler(FileSystemEventHandler):
             event_sock.close()
 
 
+# if the folder path given exists and a user identified is given raise exception.
 if os.path.exists(folder_path) and user_identifier != "NEW":
     raise Exception("Folder already exists!")
+
+# at the start of the client program create a connection and send an "999" indicator indicating that
+# this is a new PC with the user ID given (new or arg given)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 start_protocol = user_identifier + "," + "999" + ",0"
@@ -197,6 +246,7 @@ else:
         os.chdir(folder_path)
     rec_bulk_recv(s)
 
+# after the initial connection close the connection and start the main watchdog loop.
 s.close()
 w = Watcher()
 w.run()

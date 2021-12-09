@@ -11,8 +11,14 @@ def args_num_check():
         raise Exception("Only 1 argument allowed.")
 
 
-def rename_fix():
+# the method handles the following case :
+# created event and modified event (rename event) which are for the same file,
+# in order to avoid trying to move the file from the wrong src path.
+# this method will create new and merged changes map with only 1 creation event for each
+# created and moved (renamed) events in the original changes map.
+def event_merger():
     i = 0
+    # creates a new change map and edit the new map.
     new_list = changes_map.get(user_id).get(pc_id).copy()
     while i < len(changes_map.get(user_id).get(pc_id)):
         j = i + 1
@@ -21,6 +27,7 @@ def rename_fix():
             event_j = changes_map.get(user_id).get(pc_id)[j]
             event_type_i, file_type_i, path_i = event_i.split(',')
             event_type_j, file_type_j, path_j = event_j.split(',')
+            # catch the 2 events which have the same file type and matching created and moved types
             if file_type_j == file_type_i:
                 if event_type_j == "moved" and event_type_i == "created":
                     src, dest = path_j.split('>')
@@ -40,7 +47,7 @@ def rename_fix():
 # method to update the client of changes that has been made by other computers
 # this method also handle the case when the server needs to send a file to the client
 def update_client():
-    rename_fix()
+    event_merger()
     for s in changes_map.get(user_id).get(pc_id):
         event_type, file_type, path = s.split(',')
         path = win_to_lin(path)
@@ -55,6 +62,7 @@ def update_client():
             f.close()
         else:
             protocol_sender(client_socket, s)
+    # reset the changes map and send an indicator protocol that this update round has ended.
     changes_map.get(user_id)[pc_id] = []
     protocol_sender(client_socket, "0,0,0")
 
@@ -69,28 +77,38 @@ def generate_user_identifier():
     return ''.join(random.choice(string.digits + string.ascii_letters) for i in range(128))
 
 
+# this method will handle the event of getting updates from the client.
+# at first receive protocol from the client about the event information and operate accordingly.
 def event(sock):
     event_size = int.from_bytes(sock.recv(4), 'big')
     event_data = sock.recv(event_size).decode()
     event_type, file_type, path = event_data.split(',')
     path = win_to_lin(path)
+    # if the event file type is file but in the current server state the file is directory
+    # change the event file type to folder.
     if file_type == "file" and os.path.isdir(os.path.join(os.getcwd(), path)):
         file_type = "folder"
         event_data = event_type + "," + file_type + "," + path
-    if event_type == "modified" and file_type == "folder":
+    # in the following cases do not handle the event in the server :
+    #   if the event is a modified of a folder.
+    #   if the event is a deleted event of a file or folder that doesn't exist already.
+    if (event_type == "modified" and file_type == "folder") or \
+            (event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path))):
         return
-    else:
-        if event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path)):
-            sock.send(int(1).to_bytes(4, 'big'))
-            return
-        if event_type == "modified" and not os.path.exists(os.path.join(os.getcwd(), path)):
-            sock.send(int(1).to_bytes(4, 'big'))
-            return
-        if event_type == "deleted" and not os.path.exists(os.path.join(os.getcwd(), path)):
-            return
-        for comp_id, change_list in changes_map[user_id].items():
-            if comp_id != pc_id:
-                change_list.append(event_data)
+    # in the following cases sent a false alarm indicator to the client :
+    #   if the event is a created event and the path exists in the server.
+    #   if the event is a modified event and the path doesn't exist in the server.
+    # the false alarm indicator indicates the client that the event is flast alarm and cannot be continued.
+    if (event_type == "created" and os.path.exists(os.path.join(os.getcwd(), path))) or \
+            (event_type == "modified" and not os.path.exists(os.path.join(os.getcwd(), path))):
+        sock.send(int(1).to_bytes(4, 'big'))
+        return
+    # add the event to all the computers change list of the same user id
+    for comp_id, change_list in changes_map[user_id].items():
+        if comp_id != pc_id:
+            change_list.append(event_data)
+
+    # handle each event by the event type and send confirmation to the client in created or modified events.
     if event_type == "created":
         if file_type == "file":
             sock.send(int(0).to_bytes(4, 'big'))
