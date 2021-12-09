@@ -125,9 +125,8 @@ class Watcher:
                 if check == "1":
                     update(sock)
                 sock.close()
-        except Exception as e:
+        except Exception:
             self.observer.stop()
-            print(e)
         self.observer.join()
 
 
