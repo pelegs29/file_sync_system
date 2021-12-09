@@ -34,6 +34,7 @@ def rename_fix():
                         new_list.remove(event_i)
             j += 1
         i += 1
+    changes_map.get(user_id)[pc_id] = new_list
 
 
 # method to update the client of changes that has been made by other computers
