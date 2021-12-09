@@ -13,6 +13,7 @@ def args_num_check():
 
 def rename_fix():
     i = 0
+    new_list = changes_map.get(user_id).get(pc_id).copy()
     while i < len(changes_map.get(user_id).get(pc_id)):
         j = i + 1
         while j < len(changes_map.get(user_id).get(pc_id)):
@@ -23,15 +24,15 @@ def rename_fix():
             if file_type_j == file_type_i:
                 if event_type_j == "moved" and event_type_i == "created":
                     src, dest = path_j.split('>')
-                    changes_map.get(user_id).get(pc_id)[i] = "created," + file_type_i + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(event_j)
+                    if path_i == src:
+                        new_list[i] = "created," + file_type_i + "," + dest
+                        new_list.remove(event_j)
                 elif event_type_i == "moved" and event_type_j == "created":
                     src, dest = path_i.split('>')
-                    changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_i + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(event_i)
-                else:
-                    j += 1
-                    continue
+                    if path_j == src:
+                        new_list[j] = "created," + file_type_i + "," + dest
+                        new_list.remove(event_i)
+            j += 1
         i += 1
 
 
