@@ -13,7 +13,7 @@ def args_num_check():
 
 def rename_fix():
     for s in range(len(changes_map.get(user_id).get(pc_id))):
-        for j in range(s, len(changes_map.get(user_id).get(pc_id))):
+        for j in range(s+1, len(changes_map.get(user_id).get(pc_id))):
             event1 = changes_map.get(user_id).get(pc_id)[j]
             event2 = changes_map.get(user_id).get(pc_id)[s]
             event_type_j, file_type_j, path_j = event1.split(',')
