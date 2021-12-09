@@ -32,7 +32,6 @@ def rename_fix():
                 else:
                     j += 1
                     continue
-            j += 1
         i += 1
 
 
