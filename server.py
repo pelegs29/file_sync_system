@@ -12,24 +12,29 @@ def args_num_check():
 
 
 def rename_fix():
-    for s in changes_map.get(user_id).get(pc_id):
-        for j in changes_map.get(user_id).get(pc_id):
-            if j == s:
-                continue
-            event_type_j, file_type_j, path_j = j.split(',')
-            event_type_s, file_type_s, path_s = s.split(',')
-            if file_type_j == file_type_s:
-                if event_type_j == "moved" and event_type_s == "created":
+    i = 0
+    new_list = changes_map.get(user_id).get(pc_id).copy()
+    while i < len(changes_map.get(user_id).get(pc_id)):
+        j = i + 1
+        while j < len(changes_map.get(user_id).get(pc_id)):
+            event_i = changes_map.get(user_id).get(pc_id)[i]
+            event_j = changes_map.get(user_id).get(pc_id)[j]
+            event_type_i, file_type_i, path_i = event_i.split(',')
+            event_type_j, file_type_j, path_j = event_j.split(',')
+            if file_type_j == file_type_i:
+                if event_type_j == "moved" and event_type_i == "created":
                     src, dest = path_j.split('>')
-                elif event_type_s == "moved" and event_type_j == "created":
-                    src, dest = path_s.split('>')
-                else:
-                    continue
-                if src == path_s or src == path_j:
-                    new_change = "created," + file_type_s + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(s)
-                    changes_map.get(user_id).get(pc_id).remove(j)
-                    changes_map.get(user_id).get(pc_id).append(new_change)
+                    if path_i == src:
+                        new_list[i] = "created," + file_type_i + "," + dest
+                        new_list.remove(event_j)
+                elif event_type_i == "moved" and event_type_j == "created":
+                    src, dest = path_i.split('>')
+                    if path_j == src:
+                        new_list[j] = "created," + file_type_i + "," + dest
+                        new_list.remove(event_i)
+            j += 1
+        i += 1
+    changes_map.get(user_id)[pc_id] = new_list
 
 
 # method to update the client of changes that has been made by other computers
@@ -182,6 +187,6 @@ while True:
         pc_id = counter_map.get(user_id)
         (changes_map[user_id])[pc_id] = []
 
-        # get all files from the client
+        # get all files from the client.
         rec_bulk_recv(client_socket)
     client_socket.close()
