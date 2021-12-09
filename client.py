@@ -62,7 +62,6 @@ def update(sock):
     while True:
         size = int.from_bytes(sock.recv(4), 'big')
         data = sock.recv(size).decode()
-        print(data)
         if data == "0,0,0":
             break
         ignored_events.append(data)
@@ -126,9 +125,8 @@ class Watcher:
                 if check == "1":
                     update(sock)
                 sock.close()
-        except Exception as e:
+        except Exception:
             self.observer.stop()
-            print(e)
         self.observer.join()
 
 
