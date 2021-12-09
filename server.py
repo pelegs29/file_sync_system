@@ -12,24 +12,23 @@ def args_num_check():
 
 
 def rename_fix():
-    for s in changes_map.get(user_id).get(pc_id):
-        for j in changes_map.get(user_id).get(pc_id):
-            if j == s:
-                continue
-            event_type_j, file_type_j, path_j = j.split(',')
-            event_type_s, file_type_s, path_s = s.split(',')
+    for s in range(len(changes_map.get(user_id).get(pc_id))):
+        for j in range(s, len(changes_map.get(user_id).get(pc_id))):
+            event1 = changes_map.get(user_id).get(pc_id)[j]
+            event2 = changes_map.get(user_id).get(pc_id)[s]
+            event_type_j, file_type_j, path_j = event1.split(',')
+            event_type_s, file_type_s, path_s = event2.split(',')
             if file_type_j == file_type_s:
                 if event_type_j == "moved" and event_type_s == "created":
                     src, dest = path_j.split('>')
+                    changes_map.get(user_id).get(pc_id)[s] = "created," + file_type_s + "," + dest
+                    changes_map.get(user_id).get(pc_id).remove(event1)
                 elif event_type_s == "moved" and event_type_j == "created":
                     src, dest = path_s.split('>')
+                    changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_s + "," + dest
+                    changes_map.get(user_id).get(pc_id).remove(event2)
                 else:
                     continue
-                if src == path_s or src == path_j:
-                    new_change = "created," + file_type_s + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(s)
-                    changes_map.get(user_id).get(pc_id).remove(j)
-                    changes_map.get(user_id).get(pc_id).append(new_change)
 
 
 # method to update the client of changes that has been made by other computers
