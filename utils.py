@@ -90,13 +90,13 @@ def rec_bulk_send(sock, fold_path):
 
 def rec_folder_move(dest, src, home):
     os.makedirs(os.path.join(home, dest))
-    dest_path = os.path.join(home, dest)
     for root, dirs, files in os.walk(os.path.join(home, src)):
         for name in files:
-            os.rename(os.path.join(root, name), os.path.join(dest_path, name))
+            rel_path = os.path.relpath(os.path.join(root, name), home)
+            move_file(os.path.join(root, name), os.path.join(dest, rel_path))
         for name in dirs:
-            dest_path = os.path.join(dest_path, name)
-            os.makedirs(dest_path)
+            rel_path = os.path.relpath(os.path.join(root, name), home)
+            os.makedirs(os.path.join(dest, rel_path))
     rec_folder_delete(home, src)
 
 
@@ -130,14 +130,24 @@ def moved_event(file_type, home_path, path):
     src, dest = str(path).split('>')
     if os.path.exists(os.path.join(home_path, src)):
         if os.path.dirname(src) == os.path.dirname(dest):
+            if os.path.exists(os.path.join(home_path, dest)) and file_type == "folder":
+                if os.path.exists(os.path.join(home_path, src)):
+                    os.rmdir(os.path.join(home_path, src))
+                return
             os.renames(os.path.join(home_path, src), os.path.join(home_path, dest))
             return
         if file_type == "folder":
             rec_folder_move(dest, src, home_path)
         else:
-            src_file = open(os.path.join(home_path, src), "rb")
-            dest_file = open(os.path.join(home_path, dest), "wb")
-            dest_file.write(src_file.read())
-            src_file.close()
-            dest_file.close()
+            if not os.path.exists(os.path.join(home_path, os.path.dirname(dest))):
+                os.makedirs(os.path.join(home_path, os.path.dirname(dest)))
+            move_file(os.path.join(home_path, src), os.path.join(home_path, dest))
             os.remove(os.path.join(home_path, src))
+
+
+def move_file(src_path, dest_path):
+    src_file = open(src_path, "rb")
+    dest_file = open(dest_path, "wb")
+    dest_file.write(src_file.read())
+    src_file.close()
+    dest_file.close()
