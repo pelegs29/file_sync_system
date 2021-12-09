@@ -32,8 +32,8 @@ def rename_fix():
                 else:
                     j += 1
                     continue
-                j += 1
-            i += 1
+            j += 1
+        i += 1
 
 
 # method to update the client of changes that has been made by other computers
