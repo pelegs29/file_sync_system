@@ -12,20 +12,23 @@ def args_num_check():
 
 
 def rename_fix():
-    for s in range(len(changes_map.get(user_id).get(pc_id))):
-        for j in range(s+1, len(changes_map.get(user_id).get(pc_id))):
-            event1 = changes_map.get(user_id).get(pc_id)[j]
-            event2 = changes_map.get(user_id).get(pc_id)[s]
-            event_type_j, file_type_j, path_j = event1.split(',')
-            event_type_s, file_type_s, path_s = event2.split(',')
-            if file_type_j == file_type_s:
-                if event_type_j == "moved" and event_type_s == "created":
+    i = 0
+    j = 0
+    while i < len(changes_map.get(user_id).get(pc_id)):
+        j = i + 1
+        while j < len(changes_map.get(user_id).get(pc_id)):
+            event1 = changes_map.get(user_id).get(pc_id)[i]
+            event2 = changes_map.get(user_id).get(pc_id)[j]
+            event_type_j, file_type_j, path_j = event2.split(',')
+            event_type_i, file_type_i, path_i = event1.split(',')
+            if file_type_j == file_type_i:
+                if event_type_j == "moved" and event_type_i == "created":
                     src, dest = path_j.split('>')
-                    changes_map.get(user_id).get(pc_id)[s] = "created," + file_type_s + "," + dest
+                    changes_map.get(user_id).get(pc_id)[i] = "created," + file_type_i + "," + dest
                     changes_map.get(user_id).get(pc_id).remove(event1)
-                elif event_type_s == "moved" and event_type_j == "created":
-                    src, dest = path_s.split('>')
-                    changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_s + "," + dest
+                elif event_type_i == "moved" and event_type_j == "created":
+                    src, dest = path_i.split('>')
+                    changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_i + "," + dest
                     changes_map.get(user_id).get(pc_id).remove(event2)
                 else:
                     continue
