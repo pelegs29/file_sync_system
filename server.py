@@ -16,19 +16,19 @@ def rename_fix():
     while i < len(changes_map.get(user_id).get(pc_id)):
         j = i + 1
         while j < len(changes_map.get(user_id).get(pc_id)):
-            event1 = changes_map.get(user_id).get(pc_id)[i]
-            event2 = changes_map.get(user_id).get(pc_id)[j]
-            event_type_j, file_type_j, path_j = event2.split(',')
-            event_type_i, file_type_i, path_i = event1.split(',')
+            event_i = changes_map.get(user_id).get(pc_id)[i]
+            event_j = changes_map.get(user_id).get(pc_id)[j]
+            event_type_i, file_type_i, path_i = event_i.split(',')
+            event_type_j, file_type_j, path_j = event_j.split(',')
             if file_type_j == file_type_i:
                 if event_type_j == "moved" and event_type_i == "created":
                     src, dest = path_j.split('>')
                     changes_map.get(user_id).get(pc_id)[i] = "created," + file_type_i + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(event2)
+                    changes_map.get(user_id).get(pc_id).remove(event_j)
                 elif event_type_i == "moved" and event_type_j == "created":
                     src, dest = path_i.split('>')
                     changes_map.get(user_id).get(pc_id)[j] = "created," + file_type_i + "," + dest
-                    changes_map.get(user_id).get(pc_id).remove(event1)
+                    changes_map.get(user_id).get(pc_id).remove(event_i)
                 else:
                     continue
 
