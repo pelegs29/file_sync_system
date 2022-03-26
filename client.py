@@ -15,7 +15,7 @@ def args_num_check():
 # input check - raise exception if one of the condition is met :
 # -> there are less or more than 4 dots in the ip address.
 # -> there is a section in the ip that not contains only numbers.
-# -> there are less than 1 or more than 4 numbers in each section of the op
+# -> there are less than 1 or more than 4 numbers in each section of the ip
 def ip_check(ip_input):
     ip_parts = str(ip_input).split(".")
     if len(ip_parts) != 4:
