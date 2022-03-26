@@ -6,7 +6,7 @@ This project is demonstrating a cross-platform server that acts like a cloud for
 **The server works by the following method:**
 
 **If it's a new client:**
-  1. When a new client connects to the server, the server generating a random-128-chars string that uses as the client's ID. the ID will be sent to the client and saved
+  1. When a new client connects to the server, the server generating a random-128-chars string that uses as the client's ID. The ID will be sent to the client and saved
   by him. Furthermore, the ID will be printed on the server's console for later use.
   2. An empty folder with the ID of the client will be created on the server's working directory.
   3. All the files and directories inside the path that given as an srgument to the client will be copied to the directory that created by the server in step 2.
@@ -18,7 +18,7 @@ This project is demonstrating a cross-platform server that acts like a cloud for
   
 **From now on, the client will connect to the server in case of the two following reasons:**
   1. The time to be synchronized with the server(given as an argument to the client) has passed.
-  because of the ability to connect to the server from different machines on the same client ID,
+  Because of the ability to connect to the server from different machines on the same client ID,
   when connecting to the server to synchronize, any changes that has been made on any machine that uses the same client ID will be updated.
   For example, 2 machines uses the same client ID and 1 file has been deleted from the first machine, when the second client will connect to the server
   to synchronize, this file will be deleted from it's machine.
