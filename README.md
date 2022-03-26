@@ -1,5 +1,5 @@
 # network_hw2 - made by Peleg Shlomo and Eliran Eiluz.
-# Arguments for the client (BY THIS ORDER!) - server IP, server port, the path to the directory that the client wishes to be backed up on the server, time(in seconds) to be syncronized with the server, client ID(optional).
+# Arguments for the client (BY THIS ORDER!) - server IP, server port, the path to the directory that the client wishes to be backed up on the server, time(in seconds) to be synchronized with the server, client ID(optional).
 # Argument for the server - the port that the server should bind to.
 # PLEASE INSTALL WATCHDOG ON THE CLIENT'S COMPUTER(S) BEFORE USE! 
 This project is demonstrating a cross-platform server that acts like a cloud for saving files(like Google Drive), and a client that uses this server.
@@ -17,9 +17,9 @@ The server works by the following method:
   to the folder given as an agrument by the client.
   
 From now on, the client will connect to the server in case of the two following reasons:
-  1. The time to be syncronized with the server(given as an argument to the client) has passed.
+  1. The time to be synchronized with the server(given as an argument to the client) has passed.
   because of the ability to connect to the server from different machines on the same client ID,
-  when connecting to the server to syncronize, any changes that has been made on any machine that uses the same client ID will be updated.
+  when connecting to the server to synchronize, any changes that has been made on any machine that uses the same client ID will be updated.
   For example, 2 machines uses the same client ID and 1 file has been deleted from the first machine, when the second client will connect to the server
   to synchronize, this file will be deleted from it's machine.
   2. The client made a change in one of the files inside the directory that given as an argument to the client.
