@@ -26,3 +26,5 @@ This project is demonstrating a cross-platform TCP-based server that acts like a
   In this case, the client will immediately connect to the server to update him with the change.The directory is monitored by WatchDog.
   For example, the client created a file inside the monitored directory. In this case, WatchDog will immediately recognize it, and an automaticly connection to
   the server will be established, and the same file will be created in the client's directory on the server.
+
+**For more information, please read the code documentation.**
