@@ -1,6 +1,5 @@
 # network_hw2 - made by Peleg Shlomo and Eliran Eiluz.
-# arguments for the client (BY THIS ORDER!) - server IP, server port, the path to the directory that the client wishes to be backed up on the server, time(in seconds)
-# to be syncronized with the server, client ID(optional).
+# arguments for the client (BY THIS ORDER!) - server IP, server port, the path to the directory that the client wishes to be backed up on the server, time(in seconds) to be syncronized with the server, client ID(optional).
 # argument for the server - the port that the server should bind to.
 # PLEASE INSTALL WATCHDOG ON THE CLIENT'S COMPUTER(S) BEFORE USE! 
 This project is demonstrating a cross-platform server that acts like a cloud for saving files(like Google Drive), and a client that uses this server.
