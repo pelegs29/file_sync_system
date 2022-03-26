@@ -9,7 +9,7 @@ This project is demonstrating a cross-platform server that acts like a cloud for
   1. When a new client connects to the server, the server generating a random-128-chars string that uses as the client's ID. The ID will be sent to the client and saved
   by him. Furthermore, the ID will be printed on the server's console for later use.
   2. An empty folder with the ID of the client will be created on the server's working directory.
-  3. All the files and directories inside the path that given as an srgument to the client will be copied to the directory that created by the server in step 2.
+  3. All the files and directories inside the path that given as an argument to the client will be copied to the directory that created by the server in step 2.
 
 **If it's an existing client who wishes to connect from a different machine:**
   1. The client should include as the last argument it's client ID. The directory to be backed up by the server should be EMPTY!
