@@ -1,4 +1,4 @@
-# file synce system - made by Peleg Shlomo and Eliran Eiluz.
+# file sync system - made by Peleg Shlomo and Eliran Eiluz.
 # Arguments for the client (BY THIS ORDER!) - server IP, server port, the path to the directory that the client wishes to be backed up on the server, time(in seconds) to be synchronized with the server, client ID(optional).
 # Argument for the server - the port that the server should bind to.
 # PLEASE INSTALL WATCHDOG ON THE CLIENT'S COMPUTER(S) BEFORE USE! 
